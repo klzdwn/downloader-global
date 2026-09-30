@@ -161,7 +161,7 @@
                         id="urlInput" 
                         placeholder="Tempel tautan video/foto di sini..." 
                         required
-                        class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm rounded-xl pl-11 pr-24 py-3.5 border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                        class="w-full bg-slate-50 dark:bg-slate-950/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm rounded-xl pl-11 pr-24 py-3.5 border border-slate-200 dark:border-slate-800/80 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     >
                     <button 
                         type="button" 
@@ -175,7 +175,7 @@
                 <button 
                     type="submit" 
                     id="btnSubmit"
-                    class="w-full py-3.5 glow-btn text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-md"
+                    class="w-full py-3.5 glow-btn text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-md hover:opacity-95"
                 >
                     <i class="fa-solid fa-arrow-down-long"></i> <span id="btnSubmitText">Process Media</span>
                 </button>
@@ -194,7 +194,7 @@
                 <span id="mediaFoundLabel" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-check"></i> Media Ditemukan
                 </span>
-                <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md font-mono font-semibold border border-slate-200 dark:border-slate-700" id="mediaSourceTag">Public</span>
+                <span class="text-[10px] bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md font-mono font-semibold border border-slate-200 dark:border-slate-700/60" id="mediaSourceTag">Public</span>
             </div>
 
             <!-- Media Preview Container -->
@@ -217,20 +217,32 @@
                 <label id="qualityLabel" class="text-[11px] font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-sliders text-indigo-500 dark:text-indigo-400"></i> Pilih Kualitas / Resolusi:
                 </label>
-                <div id="resolutionSelectorContainer"></div>
+                <div id="resolutionSelectorContainer" class="relative">
+                    <!-- Custom styled select dropdown UI -->
+                </div>
             </div>
 
             <!-- Download Action & Progress Bar -->
             <div class="space-y-3 pt-2">
                 <!-- Progress Container -->
-                <div id="progressBox" class="hidden space-y-1.5">
-                    <div class="flex justify-between text-xs">
-                        <span id="progressStatus" class="text-indigo-600 dark:text-indigo-400 font-semibold">Proses Unduh...</span>
+                <div id="progressBox" class="hidden space-y-2 p-3 bg-slate-100/70 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                    <div class="flex justify-between items-center text-xs">
+                        <span id="progressStatus" class="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-spinner animate-spin"></i> Proses Unduh...
+                        </span>
                         <span id="progressPercent" class="text-slate-900 dark:text-white font-bold">0%</span>
                     </div>
                     <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-300 dark:border-slate-700">
                         <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-sky-400 to-emerald-400 h-full w-0 rounded-full transition-all duration-200"></div>
                     </div>
+                    <!-- Tombol Batal Unduh -->
+                    <button 
+                        id="cancelBtn" 
+                        type="button" 
+                        class="w-full py-1.5 mt-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[11px] font-semibold rounded-lg border border-rose-500/20 transition-all flex items-center justify-center gap-1.5"
+                    >
+                        <i class="fa-solid fa-xmark"></i> <span>Batal Unduh</span>
+                    </button>
                 </div>
 
                 <!-- Tombol Unduh Utama -->
@@ -245,7 +257,7 @@
                 <button 
                     id="backBtn" 
                     type="button"
-                    class="w-full py-2.5 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 hover:dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl border border-slate-300/60 dark:border-slate-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                    class="w-full py-3 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800/80 hover:dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl border border-slate-300/60 dark:border-slate-700/80 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                     <i class="fa-solid fa-arrow-left"></i> <span id="backBtnText">Kembali & Tempel Link Lain</span>
                 </button>
