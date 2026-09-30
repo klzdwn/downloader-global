@@ -1,5 +1,5 @@
 // Ganti dengan URL domain Vercel kamu nanti setelah di-deploy:
-const VERCEL_API_URL = "https://nama-project-kamu.vercel.app/api/download";
+const VERCEL_API_URL = "https://downloader-global.vercel.app/";
 
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
