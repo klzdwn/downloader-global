@@ -18,8 +18,33 @@ const progressBar = document.getElementById("progressBar");
 const progressPercent = document.getElementById("progressPercent");
 const progressStatus = document.getElementById("progressStatus");
 
+// Toast Elements
+const toast = document.getElementById("toast");
+const toastMessage = document.getElementById("toastMessage");
+let toastTimeout;
+
 let activeDownloadUrl = "";
 let currentMediaType = "video";
+
+// Fungsi Custom Toast Notification
+function showToast(message) {
+    clearTimeout(toastTimeout);
+    toastMessage.innerText = message;
+    
+    // Tampilkan Toast dengan Animasi Smooth
+    toast.classList.remove("-translate-y-20", "opacity-0", "pointer-events-none");
+    toast.classList.add("translate-y-0", "opacity-100");
+
+    // Sembunyikan Otomatis Setelah 4 Detik
+    toastTimeout = setTimeout(() => {
+        hideToast();
+    }, 4000);
+}
+
+function hideToast() {
+    toast.classList.remove("translate-y-0", "opacity-100");
+    toast.classList.add("-translate-y-20", "opacity-0", "pointer-events-none");
+}
 
 // Helper Format Detik ke MM:SS
 function formatDuration(seconds) {
@@ -35,7 +60,7 @@ pasteBtn.addEventListener("click", async () => {
         const text = await navigator.clipboard.readText();
         if (text) urlInput.value = text;
     } catch (err) {
-        alert("Izinkan akses clipboard di browser.");
+        showToast("Izinkan akses clipboard di browser HP kamu.");
     }
 });
 
@@ -112,7 +137,7 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
-            // Render Meta Info (Username, Durasi, Resolusi Asli)
+            // Render Meta Info
             mediaMetaInfo.innerHTML = `
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
                     <p class="text-[10px] text-gray-400">Username</p>
@@ -160,12 +185,12 @@ form.addEventListener("submit", async (e) => {
             downloadBtn.disabled = false;
             resultCard.classList.remove("hidden");
         } else {
-            alert("Gagal mengambil media. Pastikan tautan publik dan valid.");
+            showToast("Gagal mengambil media. Pastikan tautan publik dan valid.");
         }
 
     } catch (err) {
         console.error("Fetch Error:", err);
-        alert("Terjadi kesalahan saat mengekstrak media.");
+        showToast("Terjadi kesalahan koneksi saat mengekstrak media.");
     } finally {
         showLoading(false);
     }
@@ -232,14 +257,14 @@ downloadBtn.addEventListener("click", () => {
             }, 2500);
 
         } else {
-            alert("Gagal mengunduh file media.");
+            showToast("Gagal mengunduh file media dari server.");
             downloadBtn.disabled = false;
         }
     };
 
     xhr.onerror = () => {
         clearInterval(progressInterval);
-        alert("Terjadi masalah koneksi saat mengunduh.");
+        showToast("Terjadi masalah jaringan saat mengunduh.");
         downloadBtn.disabled = false;
     };
 
