@@ -1,19 +1,12 @@
 /**
  * Global Media Downloader Engine
- * Updated dengan CORS Proxy & Fallback API
+ * Direct Public Proxy Version (Tanpa Perlu Cloudflare Worker)
  */
 
-// Konfigurasi Endpoint API
-const API_CONFIG = {
-    // Menggunakan CORS Proxy agar request dari GitHub Pages tidak diblokir browser
-    PROXY: "https://corsproxy.io/?",
-    COBALT_ENDPOINT: "https://api.cobalt.tools/api/json",
-    
-    // Backup API (Jika Cobalt Public sedang offline/rate-limited)
-    TIKWM_ENDPOINT: "https://www.tikwm.com/api/"
-};
+// Gunakan public proxy percuma untuk bypass CORS & Cloudflare block
+const API_URL = "https://corsproxy.io/?" + encodeURIComponent("https://api.cobalt.tools/api/json");
 
-// Inisialisasi Elemen DOM
+// DOM Elements
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
 const btnSubmit = document.getElementById("btnSubmit");
@@ -25,7 +18,7 @@ const mediaPreview = document.getElementById("mediaPreview");
 const mediaTitle = document.getElementById("mediaTitle");
 const downloadLinkMain = document.getElementById("downloadLinkMain");
 
-// Event Listener: Paste
+// Paste Clipboard
 if (btnPaste) {
     btnPaste.addEventListener("click", async () => {
         try {
@@ -37,7 +30,7 @@ if (btnPaste) {
     });
 }
 
-// Event Listener: Submit Form
+// Form Submit
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const targetUrl = urlInput.value.trim();
@@ -48,76 +41,34 @@ form.addEventListener("submit", async (e) => {
     resultCard.classList.add("hidden");
 
     try {
-        let data = null;
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                url: targetUrl,
+                videoQuality: "max"
+            })
+        });
 
-        // Coba request via Cobalt dengan CORS Proxy
-        try {
-            data = await fetchFromCobalt(targetUrl);
-        } catch (err) {
-            console.warn("Cobalt API gagal/CORS error, mencoba fallback API...", err);
-        }
+        const data = await response.json();
 
-        // Jika Cobalt gagal dan tautan adalah TikTok, coba fallback TikWM API
-        if ((!data || !data.url) && targetUrl.includes("tiktok.com")) {
-            data = await fetchFromTikWM(targetUrl);
-        }
-
-        if (data && (data.url || data.picker)) {
+        if (data && (data.url || data.picker || data.status === "redirect")) {
             renderResult(data, targetUrl);
         } else {
-            alert("Gagal mengambil media. Pastikan tautan publik & valid, atau coba beberapa saat lagi.");
+            alert(data.text || "Gagal memproses media. Pastikan pautan adalah awam (public).");
         }
     } catch (error) {
-        console.error("API Error:", error);
-        alert("Terjadi kesalahan jaringan. Periksa koneksi internet atau coba link lain.");
+        console.error("Fetch Error:", error);
+        alert("Terjadi kesalahan rangkaian saat menghubungi server.");
     } finally {
         showLoading(false);
     }
 });
 
-/**
- * Fetch via Cobalt Engine (With CORS Proxy)
- */
-async function fetchFromCobalt(url) {
-    // Lewatkan request melalui CORS Proxy
-    const targetApi = API_CONFIG.PROXY + encodeURIComponent(API_CONFIG.COBALT_ENDPOINT);
-
-    const response = await fetch(targetApi, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify({
-            url: url,
-            videoQuality: "max"
-        })
-    });
-
-    if (!response.ok) throw new Error("Cobalt API failed");
-    return await response.json();
-}
-
-/**
- * Fallback API khusus TikTok (TikWM) jika Cobalt error
- */
-async function fetchFromTikWM(url) {
-    const response = await fetch(`${API_CONFIG.TIKWM_ENDPOINT}?url=${encodeURIComponent(url)}`);
-    const json = await response.json();
-    
-    if (json.code === 0 && json.data) {
-        return {
-            url: json.data.play, // Video tanpa watermark
-            picker: json.data.images ? json.data.images.map(img => ({ url: img })) : null,
-            thumb: json.data.cover
-        };
-    }
-    return null;
-}
-
-/**
- * Render Hasil ke UI
- */
+// Render Output
 function renderResult(data, originalUrl) {
     let finalUrl = data.url;
 
@@ -131,13 +82,11 @@ function renderResult(data, originalUrl) {
     }
 
     downloadLinkMain.href = finalUrl;
-    mediaTitle.innerText = `Media berhasil diproses (${new URL(originalUrl).hostname})`;
+    mediaTitle.innerText = `Media berjaya diproses dari (${new URL(originalUrl).hostname})`;
     resultCard.classList.remove("hidden");
 }
 
-/**
- * Helper Loading State
- */
+// Loading Toggle
 function showLoading(isLoading) {
     if (isLoading) {
         loadingState.classList.remove("hidden");
