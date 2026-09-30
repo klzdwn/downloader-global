@@ -23,8 +23,11 @@ const toast = document.getElementById("toast");
 const toastMessage = document.getElementById("toastMessage");
 let toastTimeout;
 
+// State Management
 let activeDownloadUrl = "";
-let currentMediaType = "video";
+let currentMediaType = "video"; // 'video' atau 'image'
+let slideImages = [];
+let currentSlideIndex = 0;
 
 // Fungsi Custom Toast Notification
 function showToast(message) {
@@ -50,6 +53,48 @@ function formatDuration(seconds) {
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+// Navigasi Slide Foto
+window.changeSlide = function(direction) {
+    if (slideImages.length === 0) return;
+    
+    currentSlideIndex += direction;
+    if (currentSlideIndex < 0) currentSlideIndex = slideImages.length - 1;
+    if (currentSlideIndex >= slideImages.length) currentSlideIndex = 0;
+
+    renderSlideView();
+};
+
+// Update Tampilan Gambar Slide Aktif & Tombol Unduh
+function renderSlideView() {
+    activeDownloadUrl = slideImages[currentSlideIndex];
+
+    previewContainer.innerHTML = `
+        <div class="relative w-full h-full flex items-center justify-center group">
+            <img src="${activeDownloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg p-1 transition-all duration-300" alt="Slide ${currentSlideIndex + 1}">
+            
+            ${slideImages.length > 1 ? `
+                <!-- Tombol Prev -->
+                <button onclick="changeSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-8 h-8 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-95 shadow-lg">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                
+                <!-- Tombol Next -->
+                <button onclick="changeSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-8 h-8 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-95 shadow-lg">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+
+                <!-- Indicator Slide -->
+                <div class="absolute bottom-2 bg-black/70 text-white text-[10px] font-mono px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                    ${currentSlideIndex + 1} /${slideImages.length}
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    // Dynamic Label Tombol Download sesuai Slide
+    downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto ${currentSlideIndex + 1}`;
 }
 
 // Paste Button
@@ -78,6 +123,8 @@ form.addEventListener("submit", async (e) => {
     showLoading(true);
     resultCard.classList.add("hidden");
     progressBox.classList.add("hidden");
+    slideImages = [];
+    currentSlideIndex = 0;
 
     try {
         let downloadUrl = "";
@@ -97,16 +144,14 @@ form.addEventListener("submit", async (e) => {
                 username = json.data.author?.unique_id ? `@${json.data.author.unique_id}` : "@tiktok";
                 titleText = json.data.title || "TikTok Content";
 
-                // DETEKSI APAKAH FOTO SLIDE ATAU VIDEO
+                // DETEKSI APAKAH SLIDE FOTO ATAU VIDEO
                 if (json.data.images && json.data.images.length > 0) {
-                    // Konten berupa FOTO SLIDE
                     currentMediaType = "image";
-                    downloadUrl = json.data.images[0]; // Ambil foto pertama (atau gambar HD)
-                    coverImg = json.data.images[0];
-                    durationText = "Photo Slide";
+                    slideImages = json.data.images;
+                    downloadUrl = slideImages[0];
+                    durationText = `${slideImages.length} Foto Slide`;
                     originalRes = "Full HD";
                 } else {
-                    // Konten berupa VIDEO
                     currentMediaType = "video";
                     downloadUrl = json.data.play;
                     coverImg = json.data.cover;
@@ -129,19 +174,27 @@ form.addEventListener("submit", async (e) => {
             const json = await res.json();
 
             if (json && (json.url || json.picker)) {
-                downloadUrl = json.url || (json.picker && json.picker[0]?.url);
-                coverImg = downloadUrl;
-                titleText = `Media dari ${mediaSourceTag.innerText}`;
-                username = "@creator";
-                
-                if (targetUrl.includes("instagram.com/p/") || !downloadUrl.includes(".mp4")) {
+                if (json.picker && json.picker.length > 0) {
                     currentMediaType = "image";
-                    durationText = "Photo";
+                    slideImages = json.picker.map(item => item.url);
+                    downloadUrl = slideImages[0];
+                    durationText = `${slideImages.length} Photo`;
                     originalRes = "Full HD";
                 } else {
-                    currentMediaType = "video";
-                    durationText = "Auto";
-                    originalRes = "1080p HD";
+                    downloadUrl = json.url;
+                    titleText = `Media dari ${mediaSourceTag.innerText}`;
+                    username = "@creator";
+                    
+                    if (targetUrl.includes("instagram.com/p/") || !downloadUrl.includes(".mp4")) {
+                        currentMediaType = "image";
+                        slideImages = [downloadUrl];
+                        durationText = "Photo";
+                        originalRes = "Full HD";
+                    } else {
+                        currentMediaType = "video";
+                        durationText = "Auto";
+                        originalRes = "1080p HD";
+                    }
                 }
             }
         }
@@ -150,7 +203,7 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
-            // Render Meta Info (Username, Durasi/Tipe, Resolusi)
+            // Render Meta Info (Username, Tipe/Durasi, Resolusi)
             mediaMetaInfo.innerHTML = `
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
                     <p class="text-[10px] text-gray-400">Username</p>
@@ -166,7 +219,7 @@ form.addEventListener("submit", async (e) => {
                 </div>
             `;
 
-            // Tampilan Khusus VIDEO vs FOTO
+            // Tampilan VIDEO vs FOTO SLIDE
             if (currentMediaType === "video") {
                 previewContainer.innerHTML = `
                     <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[300px] object-contain rounded-lg"></video>
@@ -182,10 +235,8 @@ form.addEventListener("submit", async (e) => {
                 downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Video`;
 
             } else {
-                // TAMPILAN MURNI GAMBAR / FOTO
-                previewContainer.innerHTML = `
-                    <img src="${coverImg || downloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg p-1" alt="Preview Image">
-                `;
+                // RENDER SLIDE FOTO
+                renderSlideView();
                 
                 resolutionSelectorContainer.innerHTML = `
                     <div class="w-full bg-gray-900 border border-purple-500/20 text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
@@ -193,7 +244,6 @@ form.addEventListener("submit", async (e) => {
                         <span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">Full HD Original</span>
                     </div>
                 `;
-                downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto`;
             }
 
             downloadBtn.disabled = false;
@@ -210,7 +260,7 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// Download Process
+// Download Process Single Photo / Video
 downloadBtn.addEventListener("click", () => {
     if (!activeDownloadUrl) return;
 
@@ -254,7 +304,8 @@ downloadBtn.addEventListener("click", () => {
             a.href = blobUrl;
             
             const ext = currentMediaType === "video" ? "mp4" : "jpg";
-            a.download = `MediaGrab_${Date.now()}.${ext}`;
+            const fileSuffix = currentMediaType === "image" && slideImages.length > 0 ? `_slide_${currentSlideIndex + 1}` : '';
+            a.download = `MediaGrab_${Date.now()}${fileSuffix}.${ext}`;
             
             document.body.appendChild(a);
             a.click();
@@ -262,7 +313,7 @@ downloadBtn.addEventListener("click", () => {
             window.URL.revokeObjectURL(blobUrl);
             document.body.removeChild(a);
 
-            const labelText = currentMediaType === "video" ? "Unduh Video" : "Unduh Foto";
+            const labelText = currentMediaType === "video" ? "Unduh Video" : `Unduh Foto ${currentSlideIndex + 1}`;
             downloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> Unduhan Selesai`;
             
             setTimeout(() => {
