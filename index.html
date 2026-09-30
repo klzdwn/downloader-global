@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Media Downloader — All Platforms</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <span class="brand-name">MediaGrab<span>.Global</span></span>
+            </div>
+            
+            <div class="region-selector">
+                <i class="fa-solid fa-globe globe-icon"></i>
+                <select id="countrySelect">
+                    <option value="global">Global (Auto)</option>
+                    <option value="id">🇮🇩 Indonesia</option>
+                    <option value="us">🇺🇸 United States</option>
+                    <option value="jp">🇯🇵 Japan</option>
+                    <option value="kr">🇰🇷 South Korea</option>
+                    <option value="cn">🇨🇳 China (Douyin/Bilibili)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="badge">
+                <span class="badge-dot"></span> Multi-Platform Global Downloader
+            </div>
+            <h1 class="hero-title">
+                Download Video, Foto & GIF <br>
+                <span class="gradient-text">Tanpa Watermark & Kualitas HD</span>
+            </h1>
+            <p class="hero-subtitle">
+                Unduh konten favoritmu dari TikTok, Douyin, Instagram, YouTube, Twitter/X, Pinterest, Bilibili, dan platform dunia lainnya secara instan.
+            </p>
+        </section>
+
+        <!-- Input Box Section -->
+        <section class="card input-card">
+            <form id="downloadForm">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link input-icon"></i>
+                        <input type="url" id="urlInput" placeholder="Tempelkan link/URL media di sini..." required autocomplete="off">
+                        <button type="button" class="btn-paste" id="btnPaste">
+                            <i class="fa-regular fa-clipboard"></i> Paste
+                        </button>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        <span>Download</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingState" class="loading-box hidden">
+            <div class="spinner"></div>
+            <p>Sedang memproses tautan dari server...</p>
+        </div>
+
+        <!-- Result Card Section -->
+        <section id="resultCard" class="card result-card hidden">
+            <div class="result-header">
+                <h3><i class="fa-solid fa-circle-check"></i> Media Ditemukan</h3>
+                <span id="badgePicker" class="picker-badge">Siap Diunduh</span>
+            </div>
+            <div class="result-body">
+                <div class="preview-box">
+                    <img id="mediaPreview" src="" alt="Media Preview">
+                </div>
+                <div class="details-box">
+                    <h4 id="mediaTitle">Tautan Media Berhasil Diproses</h4>
+                    <p class="download-info">Klik tombol di bawah untuk mengunduh langsung tanpa watermark.</p>
+                    
+                    <div class="action-buttons">
+                        <a id="downloadLinkMain" href="#" target="_blank" class="btn-download">
+                            <i class="fa-solid fa-download"></i> Download Video / Media
+                        </a>
+                        <a id="downloadLinkAudio" href="#" target="_blank" class="btn-audio hidden">
+                            <i class="fa-solid fa-music"></i> Extrak Audio (MP3)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Grid Badges -->
+        <section class="platforms-grid">
+            <div class="platform-item"><i class="fa-brands fa-tiktok"></i> TikTok / Douyin</div>
+            <div class="platform-item"><i class="fa-brands fa-instagram"></i> Instagram</div>
+            <div class="platform-item"><i class="fa-brands fa-youtube"></i> YouTube</div>
+            <div class="platform-item"><i class="fa-brands fa-x-twitter"></i> Twitter / X</div>
+            <div class="platform-item"><i class="fa-brands fa-pinterest"></i> Pinterest</div>
+            <div class="platform-item"><i class="fa-solid fa-play"></i> Bilibili / FB</div>
+        </section>
+
+    </main>
+
+    <!-- Custom JavaScript API Script -->
+    <script src="app.js"></script>
+</body>
+</html>
