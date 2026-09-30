@@ -38,32 +38,28 @@
       </span>
     </div>
 
-    <!-- Controls (Language & Dark Mode Toggle) -->
+    <!-- Controls (Bahasa & Dark Mode Switcher) -->
     <div class="flex items-center gap-3">
-      <!-- Country Dropdown -->
       <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-medium shadow-sm">
         <span class="text-base">🇮🇩</span>
         <span class="hidden sm:inline">ID</span>
         <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
       </div>
 
-      <!-- Dark Mode Switcher -->
-      <button id="themeToggle" class="w-9 h-9 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center shadow-sm">
+      <button id="themeToggle" type="button" class="w-9 h-9 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center shadow-sm">
         <i id="themeIcon" class="fa-solid fa-moon"></i>
       </button>
     </div>
   </header>
 
-  <!-- Hero & Main Form -->
-  <main class="w-full max-w-3xl mx-auto px-4 py-12 flex-1 flex flex-col items-center justify-center text-center">
+  <!-- Main Hero Area -->
+  <main class="w-full max-w-3xl mx-auto px-4 py-10 flex-1 flex flex-col items-center justify-center text-center">
     
-    <!-- Badge -->
     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/50 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-6">
       <i class="fa-solid fa-layer-group text-xs"></i>
       MULTI-PLATFORM GLOBAL DOWNLOADER
     </div>
 
-    <!-- Title -->
     <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-tight">
       Download Video & Foto <br class="hidden sm:block" />
       <span class="bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent">
@@ -71,25 +67,31 @@
       </span>
     </h1>
 
-    <!-- Description -->
     <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">
       Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.
     </p>
 
-    <!-- Downloader Box -->
+    <!-- Downloader Card Form -->
     <div class="w-full bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 p-2.5 sm:p-3 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-sm transition">
-      <form onsubmit="event.preventDefault();" class="flex flex-col sm:flex-row gap-2">
-        <!-- Input Field -->
+      
+      <!-- SAMBUNGKAN EVENT/FORM ASLI LU DI SINI JIKA ADA (misal: id="download-form" atau action) -->
+      <form class="flex flex-col sm:flex-row gap-2">
         <div class="relative flex-1 flex items-center">
           <i class="fa-solid fa-link absolute left-4 text-slate-400"></i>
+          
+          <!-- Input Field: Ganti id/name sesuai kodingan backend lu -->
           <input 
             type="text" 
+            id="url-input" 
+            name="url"
             placeholder="Tempel tautan video/foto di sini..." 
             class="w-full pl-11 pr-20 py-3.5 bg-slate-50 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder-slate-400 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm transition"
           >
-          <!-- Paste Button -->
+          
+          <!-- Tombol Paste -->
           <button 
             type="button" 
+            onclick="navigator.clipboard.readText().then(t => document.getElementById('url-input').value = t)"
             class="absolute right-2.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center gap-1.5 shadow-sm"
           >
             <i class="fa-regular fa-paste"></i>
@@ -97,9 +99,10 @@
           </button>
         </div>
 
-        <!-- Process Button -->
+        <!-- Tombol Process: Type submit agar mentrigger script backend bawaan lu -->
         <button 
           type="submit" 
+          id="btn-process"
           class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-sky-500/25 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
         >
           <i class="fa-solid fa-arrow-down-long"></i>
@@ -107,6 +110,9 @@
         </button>
       </form>
     </div>
+
+    <!-- Tempat Hasil Download Render (Jika ada elemen result dari backend lu) -->
+    <div id="result" class="w-full mt-6"></div>
 
     <!-- Supported Platform Icons -->
     <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-slate-400 dark:text-slate-600 text-xl">
@@ -119,17 +125,15 @@
 
   </main>
 
-  <!-- Footer -->
   <footer class="w-full text-center py-6 text-xs text-slate-500 dark:text-slate-500 border-t border-slate-200/60 dark:border-slate-800/60">
     &copy; 2026 MediaGrab.Global. All rights reserved.
   </footer>
 
-  <!-- Script Mode Gelap/Terang Toggle -->
+  <!-- Script untuk Switch Dark Mode / Light Mode -->
   <script>
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
 
-    // Cek preferensi awal
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
       themeIcon.className = 'fa-solid fa-sun text-amber-400';
@@ -138,7 +142,6 @@
       themeIcon.className = 'fa-solid fa-moon';
     }
 
-    // Fungsi Toggle
     themeToggleBtn.addEventListener('click', () => {
       if (document.documentElement.classList.contains('dark')) {
         document.documentElement.classList.remove('dark');
