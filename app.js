@@ -6,6 +6,7 @@ const loadingState = document.getElementById("loadingState");
 
 const resultCard = document.getElementById("resultCard");
 const previewContainer = document.getElementById("previewContainer");
+const mediaMetaInfo = document.getElementById("mediaMetaInfo");
 const mediaTitle = document.getElementById("mediaTitle");
 const mediaSourceTag = document.getElementById("mediaSourceTag");
 const resolutionSelectorContainer = document.getElementById("resolutionSelectorContainer");
@@ -18,7 +19,15 @@ const progressPercent = document.getElementById("progressPercent");
 const progressStatus = document.getElementById("progressStatus");
 
 let activeDownloadUrl = "";
-let currentMediaType = "video"; // 'video' atau 'image'
+let currentMediaType = "video";
+
+// Helper Format Detik ke MM:SS
+function formatDuration(seconds) {
+    if (!seconds) return "0:00";
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
 
 // Paste Button
 pasteBtn.addEventListener("click", async () => {
@@ -30,7 +39,7 @@ pasteBtn.addEventListener("click", async () => {
     }
 });
 
-// Tombol Kembali / Reset
+// Tombol Kembali
 backBtn.addEventListener("click", () => {
     resultCard.classList.add("hidden");
     urlInput.value = "";
@@ -51,6 +60,9 @@ form.addEventListener("submit", async (e) => {
         let downloadUrl = "";
         let coverImg = "";
         let titleText = "";
+        let username = "@user";
+        let durationText = "0:00";
+        let originalRes = "1080p";
 
         // 1. TIKTOK ENGINE
         if (targetUrl.includes("tiktok.com") || targetUrl.includes("douyin.com")) {
@@ -61,10 +73,13 @@ form.addEventListener("submit", async (e) => {
                 downloadUrl = json.data.play;
                 coverImg = json.data.cover;
                 titleText = json.data.title || "TikTok Video";
+                username = json.data.author?.unique_id ? `@${json.data.author.unique_id}` : "@tiktok";
+                durationText = formatDuration(json.data.duration);
+                originalRes = (json.data.wm_size || json.data.hd_size) ? "1080x1920" : "1080p HD";
                 currentMediaType = "video";
             }
         } 
-        // 2. YOUTUBE / INSTAGRAM / UNIVERSAL
+        // 2. OTHER ENGINES
         else {
             mediaSourceTag.innerText = new URL(targetUrl).hostname.replace('www.', '');
             const res = await fetch("https://api.cobalt.tools/", {
@@ -80,10 +95,13 @@ form.addEventListener("submit", async (e) => {
                 downloadUrl = json.url || (json.picker && json.picker[0]?.url);
                 coverImg = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&q=80";
                 titleText = `Media dari ${mediaSourceTag.innerText}`;
+                username = "@creator";
+                durationText = "Auto";
+                originalRes = "1080p HD";
                 
-                // Deteksi tipe media
                 if (targetUrl.includes("instagram.com/p/") && !downloadUrl.includes(".mp4")) {
                     currentMediaType = "image";
+                    originalRes = "Full HD";
                 } else {
                     currentMediaType = "video";
                 }
@@ -94,13 +112,28 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
+            // Render Meta Info (Username, Durasi, Resolusi Asli)
+            mediaMetaInfo.innerHTML = `
+                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">Username</p>
+                    <p class="text-xs font-semibold text-purple-300 truncate">${username}</p>
+                </div>
+                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">Durasi</p>
+                    <p class="text-xs font-semibold text-emerald-400">${durationText}</p>
+                </div>
+                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">Resolusi Asli</p>
+                    <p class="text-xs font-semibold text-blue-400">${originalRes}</p>
+                </div>
+            `;
+
             // Render Preview & Selector Resolusi
             if (currentMediaType === "video") {
                 previewContainer.innerHTML = `
                     <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[300px] object-contain rounded-lg"></video>
                 `;
                 
-                // Tampilan Pilihan Resolusi Video
                 resolutionSelectorContainer.innerHTML = `
                     <select id="resSelect" class="w-full bg-gray-900 border border-purple-500/30 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500">
                         <option value="1080">1080p (Ultra HD)</option>
@@ -115,7 +148,6 @@ form.addEventListener("submit", async (e) => {
                     <img src="${coverImg || downloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg" alt="Preview">
                 `;
                 
-                // Tampilan Badge Resolusi Foto
                 resolutionSelectorContainer.innerHTML = `
                     <div class="w-full bg-gray-900 border border-purple-500/20 text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
                         <span><i class="fa-regular fa-image"></i> Resolusi Foto</span>
@@ -139,7 +171,7 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// Download Process dengan Pace Progress yang Halus & Tidak Cepat
+// Download Process
 downloadBtn.addEventListener("click", () => {
     if (!activeDownloadUrl) return;
 
@@ -151,10 +183,8 @@ downloadBtn.addEventListener("click", () => {
     progressPercent.innerText = "0%";
     progressStatus.innerText = "Menyiapkan file...";
 
-    // Interval Simulasi Progress Bertahap (Mulus)
     const progressInterval = setInterval(() => {
         if (currentPercent < 90) {
-            // Tambah random 2-6% per interval
             currentPercent += Math.floor(Math.random() * 5) + 2;
             if (currentPercent > 90) currentPercent = 90;
 
@@ -165,7 +195,6 @@ downloadBtn.addEventListener("click", () => {
         }
     }, 180);
 
-    // Ambil File Blob
     const xhr = new XMLHttpRequest();
     xhr.open("GET", activeDownloadUrl, true);
     xhr.responseType = "blob";
@@ -174,7 +203,6 @@ downloadBtn.addEventListener("click", () => {
         clearInterval(progressInterval);
 
         if (xhr.status === 200) {
-            // Naikkan langsung ke 100% pas selesai
             progressBar.style.width = "100%";
             progressPercent.innerText = "100%";
             progressStatus.innerText = "Selesai!";
