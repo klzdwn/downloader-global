@@ -1,244 +1,155 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaGrab Global - Ultra Downloader</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaGrab.Global</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#0284c7',
+              600: '#0369a1',
+            }
+          }
         }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* Dark Mode Styling */
-        .dark body {
-            background-color: #0b0f19;
-            color: #f3f4f6;
-        }
-        .dark .glass-card {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .dark .glow-effect {
-            box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
-        }
-
-        /* Light Mode Styling */
-        body:not(.dark) {
-            background-color: #f8fafc;
-            color: #0f172a;
-        }
-        body:not(.dark) .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        body:not(.dark) .glow-effect {
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
-        }
-
-        .glow-btn:hover {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 font-sans flex flex-col justify-between">
 
-    <!-- Background Ambient Glow -->
-    <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-purple-600/20 dark:bg-purple-600/30 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-[-100px] right-0 w-[300px] h-[300px] bg-blue-600/15 dark:bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-
-    <!-- Header / Navbar -->
-    <header class="w-full max-w-2xl flex justify-between items-center py-4 px-2 z-10">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg">
-                <i class="fa-solid fa-bolt text-white text-lg"></i>
-            </div>
-            <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-700 to-purple-500 dark:from-white dark:via-gray-200 dark:to-purple-400">
-                MediaGrab<span class="text-purple-500">.Global</span>
-            </span>
-        </div>
-
-        <!-- Controls: Language Selector & Theme Toggle -->
-        <div class="flex items-center gap-2">
-            <!-- Language Selector -->
-            <div class="relative">
-                <select id="langSelect" class="bg-gray-200/80 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-gray-300 dark:border-gray-700 focus:outline-none cursor-pointer backdrop-blur-md transition-colors">
-                    <option value="id">🇮🇩 ID</option>
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="ms">🇲🇾 MS</option>
-                </select>
-            </div>
-
-            <!-- Dark / Light Toggle -->
-            <button id="themeToggleBtn" class="w-8 h-8 rounded-xl bg-gray-200/80 dark:bg-gray-800/80 text-gray-700 dark:text-amber-400 border border-gray-300 dark:border-gray-700 flex items-center justify-center transition-all active:scale-90 backdrop-blur-md" title="Ganti Tema">
-                <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="w-full max-w-xl my-auto z-10 flex flex-col gap-6">
-
-        <!-- Hero Section -->
-        <div class="text-center space-y-3">
-            <span id="heroBadge" class="text-xs font-bold tracking-widest text-purple-600 dark:text-purple-400 uppercase px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">
-                Multi-Platform Global Downloader
-            </span>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
-                <span id="heroTitle1">Download Video & Foto</span> <br>
-                <span id="heroTitle2" class="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400">
-                    Tanpa Watermark HD
-                </span>
-            </h1>
-            <p id="heroSubtitle" class="text-xs text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.
-            </p>
-        </div>
-
-        <!-- Input Box Form -->
-        <div id="inputCard" class="glass-card p-4 sm:p-5 rounded-2xl glow-effect space-y-3">
-            <form id="downloadForm" class="flex flex-col gap-3">
-                <div class="relative flex items-center">
-                    <i class="fa-solid fa-link absolute left-4 text-gray-400 text-sm"></i>
-                    <input 
-                        type="url" 
-                        id="urlInput" 
-                        placeholder="Tempel tautan video/foto di sini..." 
-                        required
-                        class="w-full bg-gray-100/80 dark:bg-gray-900/90 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm rounded-xl pl-11 pr-20 py-3.5 border border-gray-200 dark:border-gray-700/50 focus:outline-none focus:border-purple-500 transition-all"
-                    >
-                    <button 
-                        type="button" 
-                        id="pasteBtn"
-                        class="absolute right-2 text-xs font-medium bg-purple-100 hover:bg-purple-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-lg border border-purple-200 dark:border-purple-500/20 transition-all flex items-center gap-1"
-                    >
-                        <i class="fa-regular fa-clipboard"></i> <span id="pasteBtnText">Paste</span>
-                    </button>
-                </div>
-
-                <button 
-                    type="submit" 
-                    id="btnSubmit"
-                    class="w-full py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-bold rounded-xl shadow-lg glow-btn transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
-                >
-                    <i class="fa-solid fa-arrow-down"></i> <span id="btnSubmitText">Process Media</span>
-                </button>
-            </form>
-
-            <!-- Loading State -->
-            <div id="loadingState" class="hidden py-4 text-center space-y-2">
-                <div class="inline-block w-7 h-7 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p id="loadingText" class="text-xs text-gray-500 dark:text-gray-400">Sedang mengekstrak media dari server...</p>
-            </div>
-        </div>
-
-        <!-- Result Card -->
-        <div id="resultCard" class="hidden glass-card p-4 sm:p-5 rounded-2xl space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-200/80 dark:border-gray-800">
-                <span id="mediaFoundLabel" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-check"></i> Media Ditemukan
-                </span>
-                <span class="text-[10px] bg-gray-200/70 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-md font-mono" id="mediaSourceTag">Public</span>
-            </div>
-
-            <!-- Media Preview Container Adaptif Tema -->
-            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-gray-100/80 dark:bg-black/60 border border-gray-200/80 dark:border-gray-800 min-h-[220px] flex items-center justify-center transition-colors">
-                <!-- Diisi via JS -->
-            </div>
-
-            <!-- Meta Info Badges -->
-            <div id="mediaMetaInfo" class="grid grid-cols-3 gap-2 py-1">
-                <!-- Diisi via JS -->
-            </div>
-
-            <!-- Title Info -->
-            <p id="mediaTitle" class="text-xs text-gray-800 dark:text-gray-200 font-medium line-clamp-2 leading-relaxed">
-                Judul Media
-            </p>
-
-            <!-- Choice Resolution Selector -->
-            <div id="resolutionBox" class="space-y-1.5 pt-1">
-                <label id="qualityLabel" class="text-[11px] font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                    <i class="fa-solid fa-sliders text-purple-500"></i> Pilih Kualitas / Resolusi:
-                </label>
-                <div id="resolutionSelectorContainer"></div>
-            </div>
-
-            <!-- Download Action & Progress Bar -->
-            <div class="space-y-3 pt-2">
-                <!-- Progress Container -->
-                <div id="progressBox" class="hidden space-y-1.5">
-                    <div class="flex justify-between text-xs">
-                        <span id="progressStatus" class="text-purple-600 dark:text-purple-400 font-medium">Proses Unduh...</span>
-                        <span id="progressPercent" class="text-gray-900 dark:text-white font-bold">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-gray-300 dark:border-gray-700">
-                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400 h-full w-0% rounded-full transition-all duration-200"></div>
-                    </div>
-                </div>
-
-                <!-- Tombol Unduh Utama -->
-                <button 
-                    id="downloadBtn" 
-                    class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-900/20"
-                >
-                    <i class="fa-solid fa-download"></i> <span id="downloadBtnText">Unduh Video</span>
-                </button>
-
-                <!-- Tombol Kembali -->
-                <button 
-                    id="backBtn" 
-                    type="button"
-                    class="w-full py-2.5 bg-gray-200/80 hover:bg-gray-300/80 dark:bg-gray-800/80 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-xl border border-gray-300/60 dark:border-gray-700/60 transition-all flex items-center justify-center gap-2 active:scale-95"
-                >
-                    <i class="fa-solid fa-arrow-left"></i> <span id="backBtnText">Kembali & Tempel Link Lain</span>
-                </button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Custom Toast Notification Container -->
-    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none w-[90%] max-w-md">
-        <div class="glass-card bg-white/90 dark:bg-gray-900/90 border border-red-500/40 text-gray-900 dark:text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-xl">
-            <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0 border border-red-500/30">
-                <i class="fa-solid fa-circle-exclamation text-lg"></i>
-            </div>
-            <div class="flex-1">
-                <h4 id="toastTitle" class="text-xs font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">Terjadi Kesalahan</h4>
-                <p id="toastMessage" class="text-xs text-gray-600 dark:text-gray-300 font-medium leading-snug">Pesan error di sini...</p>
-            </div>
-            <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 text-sm">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
+  <!-- Header / Navigation -->
+  <header class="w-full max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+        <i class="fa-solid fa-bolt text-xl"></i>
+      </div>
+      <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-sky-600 to-cyan-500 dark:from-sky-400 dark:to-cyan-300 bg-clip-text text-transparent">
+        MediaGrab<span class="text-slate-400 dark:text-slate-500 font-medium">.Global</span>
+      </span>
     </div>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-xl text-center py-4 text-[11px] text-gray-500 dark:text-gray-400 z-10">
-        &copy; 2026 MediaGrab Global. Fast, Free & Secure.
-    </footer>
+    <!-- Controls (Language & Dark Mode Toggle) -->
+    <div class="flex items-center gap-3">
+      <!-- Country Dropdown -->
+      <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-medium shadow-sm">
+        <span class="text-base">🇮🇩</span>
+        <span class="hidden sm:inline">ID</span>
+        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+      </div>
 
-    <script src="app.js"></script>
+      <!-- Dark Mode Switcher -->
+      <button id="themeToggle" class="w-9 h-9 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center shadow-sm">
+        <i id="themeIcon" class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero & Main Form -->
+  <main class="w-full max-w-3xl mx-auto px-4 py-12 flex-1 flex flex-col items-center justify-center text-center">
+    
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/50 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-6">
+      <i class="fa-solid fa-layer-group text-xs"></i>
+      MULTI-PLATFORM GLOBAL DOWNLOADER
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-tight">
+      Download Video & Foto <br class="hidden sm:block" />
+      <span class="bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent">
+        Tanpa Watermark HD
+      </span>
+    </h1>
+
+    <!-- Description -->
+    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">
+      Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.
+    </p>
+
+    <!-- Downloader Box -->
+    <div class="w-full bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 p-2.5 sm:p-3 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-sm transition">
+      <form onsubmit="event.preventDefault();" class="flex flex-col sm:flex-row gap-2">
+        <!-- Input Field -->
+        <div class="relative flex-1 flex items-center">
+          <i class="fa-solid fa-link absolute left-4 text-slate-400"></i>
+          <input 
+            type="text" 
+            placeholder="Tempel tautan video/foto di sini..." 
+            class="w-full pl-11 pr-20 py-3.5 bg-slate-50 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder-slate-400 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm transition"
+          >
+          <!-- Paste Button -->
+          <button 
+            type="button" 
+            class="absolute right-2.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center gap-1.5 shadow-sm"
+          >
+            <i class="fa-regular fa-paste"></i>
+            Paste
+          </button>
+        </div>
+
+        <!-- Process Button -->
+        <button 
+          type="submit" 
+          class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-sky-500/25 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
+        >
+          <i class="fa-solid fa-arrow-down-long"></i>
+          <span>Process Media</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Supported Platform Icons -->
+    <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-slate-400 dark:text-slate-600 text-xl">
+      <i class="fa-brands fa-tiktok hover:text-slate-700 dark:hover:text-slate-300 transition"></i>
+      <i class="fa-brands fa-instagram hover:text-slate-700 dark:hover:text-slate-300 transition"></i>
+      <i class="fa-brands fa-youtube hover:text-slate-700 dark:hover:text-slate-300 transition"></i>
+      <i class="fa-brands fa-x-twitter hover:text-slate-700 dark:hover:text-slate-300 transition"></i>
+      <i class="fa-brands fa-pinterest hover:text-slate-700 dark:hover:text-slate-300 transition"></i>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full text-center py-6 text-xs text-slate-500 dark:text-slate-500 border-t border-slate-200/60 dark:border-slate-800/60">
+    &copy; 2026 MediaGrab.Global. All rights reserved.
+  </footer>
+
+  <!-- Script Mode Gelap/Terang Toggle -->
+  <script>
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Cek preferensi awal
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      themeIcon.className = 'fa-solid fa-sun text-amber-400';
+    } else {
+      document.documentElement.classList.remove('dark');
+      themeIcon.className = 'fa-solid fa-moon';
+    }
+
+    // Fungsi Toggle
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+        themeIcon.className = 'fa-solid fa-moon';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+        themeIcon.className = 'fa-solid fa-sun text-amber-400';
+      }
+    });
+  </script>
 </body>
 </html>
