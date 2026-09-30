@@ -1,9 +1,21 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KALZGLOBAL - Ultra Downloader</title>
+
+    <!-- INLINE SCRIPT ANTI-GLITCH FLICKER MODE GELAP/TERANG -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("app_theme") || "dark";
+            if (savedTheme === "dark") {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+        })();
+    </script>
     
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
