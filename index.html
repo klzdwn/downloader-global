@@ -3,123 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Media Downloader — All Platforms</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>MediaGrab Global - Ultra Downloader</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+        }
+        .glow-btn:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
 
-    <!-- Header Navigation -->
-    <header class="navbar">
-        <div class="nav-container">
-            <div class="brand">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-bolt"></i>
-                </div>
-                <span class="brand-name">MediaGrab<span>.Global</span></span>
+    <!-- Background Ambient Glow -->
+    <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-purple-600/30 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-100px] right-0 w-[300px] h-[300px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- Header / Navbar -->
+    <header class="w-full max-w-2xl flex justify-between items-center py-4 px-2 z-10">
+        <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-bolt text-white text-lg"></i>
             </div>
-            
-            <div class="region-selector">
-                <i class="fa-solid fa-globe globe-icon"></i>
-                <select id="countrySelect">
-                    <option value="global">Global (Auto)</option>
-                    <option value="id">🇮🇩 Indonesia</option>
-                    <option value="us">🇺🇸 United States</option>
-                    <option value="jp">🇯🇵 Japan</option>
-                    <option value="kr">🇰🇷 South Korea</option>
-                    <option value="cn">🇨🇳 China (Douyin/Bilibili)</option>
-                </select>
-            </div>
+            <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-purple-400">
+                MediaGrab<span class="text-purple-500">.Global</span>
+            </span>
         </div>
+        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-950/60 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Auto Engine
+        </span>
     </header>
 
     <!-- Main Content -->
-    <main class="main-wrapper">
+    <main class="w-full max-w-xl my-auto z-10 flex flex-col gap-6">
 
         <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="badge">
-                <span class="badge-dot"></span> Multi-Platform Global Downloader
-            </div>
-            <h1 class="hero-title">
-                Download Video, Foto & GIF <br>
-                <span class="gradient-text">Tanpa Watermark & Kualitas HD</span>
+        <div class="text-center space-y-3">
+            <span class="text-xs font-bold tracking-widest text-purple-400 uppercase px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">
+                Multi-Platform Global Downloader
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+                Download Video & Foto <br>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400">
+                    Tanpa Watermark HD
+                </span>
             </h1>
-            <p class="hero-subtitle">
-                Unduh konten favoritmu dari TikTok, Douyin, Instagram, YouTube, Twitter/X, Pinterest, Bilibili, dan platform dunia lainnya secara instan.
+            <p class="text-xs text-gray-400 max-w-md mx-auto">
+                Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.
             </p>
-        </section>
-
-        <!-- Input Box Section -->
-        <section class="card input-card">
-            <form id="downloadForm">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-link input-icon"></i>
-                        <input type="url" id="urlInput" placeholder="Tempelkan link/URL media di sini..." required autocomplete="off">
-                        <button type="button" class="btn-paste" id="btnPaste">
-                            <i class="fa-regular fa-clipboard"></i> Paste
-                        </button>
-                    </div>
-                    <button type="submit" class="btn-primary" id="btnSubmit">
-                        <i class="fa-solid fa-arrow-down"></i>
-                        <span>Download</span>
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Loading Indicator -->
-        <div id="loadingState" class="loading-box hidden">
-            <div class="spinner"></div>
-            <p>Sedang memproses tautan dari server...</p>
         </div>
 
-        <!-- Result Card Section -->
-        <section id="resultCard" class="card result-card hidden">
-            <div class="result-header">
-                <h3><i class="fa-solid fa-circle-check"></i> Media Ditemukan</h3>
-                <span id="badgePicker" class="picker-badge">Siap Diunduh</span>
-            </div>
-            <div class="result-body">
-                <div class="preview-box">
-                    <img id="mediaPreview" src="" alt="Media Preview">
+        <!-- Input Box Form -->
+        <div class="glass-card p-4 sm:p-5 rounded-2xl glow-effect space-y-3">
+            <form id="downloadForm" class="flex flex-col gap-3">
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-link absolute left-4 text-gray-400 text-sm"></i>
+                    <input 
+                        type="url" 
+                        id="urlInput" 
+                        placeholder="Tempel tautan video/foto di sini..." 
+                        required
+                        class="w-full bg-gray-900/90 text-white placeholder-gray-500 text-sm rounded-xl pl-11 pr-20 py-3.5 border border-gray-700/50 focus:outline-none focus:border-purple-500 transition-all"
+                    >
+                    <button 
+                        type="button" 
+                        id="pasteBtn"
+                        class="absolute right-2 text-xs font-medium bg-gray-800 hover:bg-gray-700 text-purple-300 px-3 py-1.5 rounded-lg border border-purple-500/20 transition-all flex items-center gap-1"
+                    >
+                        <i class="fa-regular fa-clipboard"></i> Paste
+                    </button>
                 </div>
-                <div class="details-box">
-                    <h4 id="mediaTitle">Tautan Media Berhasil Diproses</h4>
-                    <p class="download-info">Klik tombol di bawah untuk mengunduh langsung tanpa watermark.</p>
-                    
-                    <div class="action-buttons">
-                        <a id="downloadLinkMain" href="#" target="_blank" class="btn-download">
-                            <i class="fa-solid fa-download"></i> Download Video / Media
-                        </a>
-                        <a id="downloadLinkAudio" href="#" target="_blank" class="btn-audio hidden">
-                            <i class="fa-solid fa-music"></i> Extrak Audio (MP3)
-                        </a>
+
+                <button 
+                    type="submit" 
+                    id="btnSubmit"
+                    class="w-full py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-bold rounded-xl shadow-lg glow-btn transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+                >
+                    <i class="fa-solid fa-arrow-down"></i> Process Media
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden py-4 text-center space-y-2">
+                <div class="inline-block w-7 h-7 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs text-gray-400">Sedang mengekstrak media dari server...</p>
+            </div>
+        </div>
+
+        <!-- Result Card (Preview & Download Progress) -->
+        <div id="resultCard" class="hidden glass-card p-4 sm:p-5 rounded-2xl space-y-4 animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+                <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i> Media Ditemukan
+                </span>
+                <span class="text-[10px] bg-gray-800 text-gray-300 px-2.5 py-0.5 rounded-md font-mono" id="mediaSourceTag">Public</span>
+            </div>
+
+            <!-- Media Preview Container (Video/Foto Dynamic) -->
+            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-black/60 max-h-[320px] flex items-center justify-center border border-gray-800">
+                <!-- Diisi via JS: <img> atau <video> -->
+            </div>
+
+            <!-- Title & Info -->
+            <p id="mediaTitle" class="text-xs text-gray-200 font-medium line-clamp-2 leading-relaxed">
+                Judul Media
+            </p>
+
+            <!-- Download Action & Progress Bar -->
+            <div class="space-y-2 pt-2">
+                <!-- Progress Container (Hidden by default) -->
+                <div id="progressBox" class="hidden space-y-1.5">
+                    <div class="flex justify-between text-xs">
+                        <span id="progressStatus" class="text-purple-400 font-medium">Mengunduh...</span>
+                        <span id="progressPercent" class="text-white font-bold">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-gray-700">
+                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-0% rounded-full transition-all duration-150"></div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Platform Grid Badges -->
-        <section class="platforms-grid">
-            <div class="platform-item"><i class="fa-brands fa-tiktok"></i> TikTok / Douyin</div>
-            <div class="platform-item"><i class="fa-brands fa-instagram"></i> Instagram</div>
-            <div class="platform-item"><i class="fa-brands fa-youtube"></i> YouTube</div>
-            <div class="platform-item"><i class="fa-brands fa-x-twitter"></i> Twitter / X</div>
-            <div class="platform-item"><i class="fa-brands fa-pinterest"></i> Pinterest</div>
-            <div class="platform-item"><i class="fa-solid fa-play"></i> Bilibili / FB</div>
-        </section>
+                <!-- Action Button -->
+                <button 
+                    id="downloadBtn" 
+                    class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-900/30"
+                >
+                    <i class="fa-solid fa-download"></i> Simpan Ke Perangkat (0%)
+                </button>
+            </div>
+        </div>
 
     </main>
 
-    <!-- Custom JavaScript API Script -->
+    <!-- Footer -->
+    <footer class="w-full max-w-xl text-center py-4 text-[11px] text-gray-500 z-10">
+        &copy; 2026 MediaGrab Global. Fast, Free & Secure.
+    </footer>
+
     <script src="app.js"></script>
 </body>
 </html>
