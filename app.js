@@ -31,11 +31,9 @@ function showToast(message) {
     clearTimeout(toastTimeout);
     toastMessage.innerText = message;
     
-    // Tampilkan Toast dengan Animasi Smooth
     toast.classList.remove("-translate-y-20", "opacity-0", "pointer-events-none");
     toast.classList.add("translate-y-0", "opacity-100");
 
-    // Sembunyikan Otomatis Setelah 4 Detik
     toastTimeout = setTimeout(() => {
         hideToast();
     }, 4000);
@@ -48,7 +46,7 @@ function hideToast() {
 
 // Helper Format Detik ke MM:SS
 function formatDuration(seconds) {
-    if (!seconds) return "0:00";
+    if (!seconds || seconds === 0) return "Photo";
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
@@ -94,17 +92,30 @@ form.addEventListener("submit", async (e) => {
             mediaSourceTag.innerText = "TikTok";
             const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(targetUrl)}`);
             const json = await res.json();
+
             if (json && json.data) {
-                downloadUrl = json.data.play;
-                coverImg = json.data.cover;
-                titleText = json.data.title || "TikTok Video";
                 username = json.data.author?.unique_id ? `@${json.data.author.unique_id}` : "@tiktok";
-                durationText = formatDuration(json.data.duration);
-                originalRes = (json.data.wm_size || json.data.hd_size) ? "1080x1920" : "1080p HD";
-                currentMediaType = "video";
+                titleText = json.data.title || "TikTok Content";
+
+                // DETEKSI APAKAH FOTO SLIDE ATAU VIDEO
+                if (json.data.images && json.data.images.length > 0) {
+                    // Konten berupa FOTO SLIDE
+                    currentMediaType = "image";
+                    downloadUrl = json.data.images[0]; // Ambil foto pertama (atau gambar HD)
+                    coverImg = json.data.images[0];
+                    durationText = "Photo Slide";
+                    originalRes = "Full HD";
+                } else {
+                    // Konten berupa VIDEO
+                    currentMediaType = "video";
+                    downloadUrl = json.data.play;
+                    coverImg = json.data.cover;
+                    durationText = formatDuration(json.data.duration);
+                    originalRes = (json.data.wm_size || json.data.hd_size) ? "1080x1920" : "1080p HD";
+                }
             }
         } 
-        // 2. OTHER ENGINES
+        // 2. OTHER ENGINES (Instagram, YouTube, etc)
         else {
             mediaSourceTag.innerText = new URL(targetUrl).hostname.replace('www.', '');
             const res = await fetch("https://api.cobalt.tools/", {
@@ -116,19 +127,21 @@ form.addEventListener("submit", async (e) => {
                 body: JSON.stringify({ url: targetUrl, videoQuality: "1080" })
             });
             const json = await res.json();
+
             if (json && (json.url || json.picker)) {
                 downloadUrl = json.url || (json.picker && json.picker[0]?.url);
-                coverImg = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&q=80";
+                coverImg = downloadUrl;
                 titleText = `Media dari ${mediaSourceTag.innerText}`;
                 username = "@creator";
-                durationText = "Auto";
-                originalRes = "1080p HD";
                 
-                if (targetUrl.includes("instagram.com/p/") && !downloadUrl.includes(".mp4")) {
+                if (targetUrl.includes("instagram.com/p/") || !downloadUrl.includes(".mp4")) {
                     currentMediaType = "image";
+                    durationText = "Photo";
                     originalRes = "Full HD";
                 } else {
                     currentMediaType = "video";
+                    durationText = "Auto";
+                    originalRes = "1080p HD";
                 }
             }
         }
@@ -137,14 +150,14 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
-            // Render Meta Info
+            // Render Meta Info (Username, Durasi/Tipe, Resolusi)
             mediaMetaInfo.innerHTML = `
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
                     <p class="text-[10px] text-gray-400">Username</p>
                     <p class="text-xs font-semibold text-purple-300 truncate">${username}</p>
                 </div>
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">Durasi</p>
+                    <p class="text-[10px] text-gray-400">${currentMediaType === 'image' ? 'Tipe' : 'Durasi'}</p>
                     <p class="text-xs font-semibold text-emerald-400">${durationText}</p>
                 </div>
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
@@ -153,7 +166,7 @@ form.addEventListener("submit", async (e) => {
                 </div>
             `;
 
-            // Render Preview & Selector Resolusi
+            // Tampilan Khusus VIDEO vs FOTO
             if (currentMediaType === "video") {
                 previewContainer.innerHTML = `
                     <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[300px] object-contain rounded-lg"></video>
@@ -169,13 +182,14 @@ form.addEventListener("submit", async (e) => {
                 downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Video`;
 
             } else {
+                // TAMPILAN MURNI GAMBAR / FOTO
                 previewContainer.innerHTML = `
-                    <img src="${coverImg || downloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg" alt="Preview">
+                    <img src="${coverImg || downloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg p-1" alt="Preview Image">
                 `;
                 
                 resolutionSelectorContainer.innerHTML = `
                     <div class="w-full bg-gray-900 border border-purple-500/20 text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
-                        <span><i class="fa-regular fa-image"></i> Resolusi Foto</span>
+                        <span><i class="fa-regular fa-image"></i> Kualitas Gambar</span>
                         <span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">Full HD Original</span>
                     </div>
                 `;
