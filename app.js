@@ -1,6 +1,6 @@
 /**
- * Universal Media Downloader
- * Direct API Integration (Tanpa Vercel Backend)
+ * Global Multi-Platform Media Downloader Engine
+ * Direct Universal API (Bypass Cloudflare & CORS)
  */
 
 const form = document.getElementById("downloadForm");
@@ -37,33 +37,32 @@ form.addEventListener("submit", async (e) => {
     resultCard.classList.add("hidden");
 
     try {
-        let data = null;
+        let result = null;
 
-        // Auto-Routing Platform
+        // Routing Engine berdasarkan platform
         if (targetUrl.includes("tiktok.com") || targetUrl.includes("douyin.com")) {
-            data = await fetchTikTok(targetUrl);
+            result = await fetchTikTok(targetUrl);
         } else if (targetUrl.includes("instagram.com")) {
-            data = await fetchInstagram(targetUrl);
-        } else if (targetUrl.includes("youtube.com") || targetUrl.includes("youtu.be")) {
-            data = await fetchYouTube(targetUrl);
+            result = await fetchInstagram(targetUrl);
         } else {
-            data = await fetchUniversal(targetUrl);
+            // Universal Engine untuk YouTube, Twitter/X, Facebook, Pinterest, dll.
+            result = await fetchUniversalGlobal(targetUrl);
         }
 
-        if (data && data.url) {
-            renderResult(data, targetUrl);
+        if (result && result.url) {
+            renderResult(result, targetUrl);
         } else {
-            alert("Gagal memproses media. Pastikan tautan publik dan coba lagi.");
+            alert("Gagal memproses media. Pastikan akun tidak diprivat/tautan valid.");
         }
     } catch (error) {
         console.error("Downloader Error:", error);
-        alert("Terjadi kesalahan jaringan atau tautan tidak didukung.");
+        alert("Terjadi kesalahan koneksi saat memproses link.");
     } finally {
         showLoading(false);
     }
 });
 
-// 1. TikTok Engine (TikWM Direct)
+// 1. TikTok Engine (TikWM Direct Public Endpoint)
 async function fetchTikTok(url) {
     const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
     const json = await res.json();
@@ -77,50 +76,43 @@ async function fetchTikTok(url) {
     return null;
 }
 
-// 2. Instagram Engine (DownloadGram Engine)
+// 2. Instagram Engine (SnapInsta Proxy - Tembus Cloudflare IG)
 async function fetchInstagram(url) {
     try {
-        const res = await fetch(`https://api.downloadgram.org/media?url=${encodeURIComponent(url)}`);
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(`https://api.vkrdown.com/insta/?url=${url}`);
+        const res = await fetch(proxyUrl);
         const json = await res.json();
-        if (json && json.url) {
+        if (json.status && json.data && json.data.length > 0) {
             return {
-                url: json.url,
-                thumb: json.thumb || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80",
+                url: json.data[0].url,
+                thumb: json.data[0].thumbnail || json.data[0].url,
                 title: "Instagram Media"
             };
         }
     } catch (e) {
-        // Fallback
-        return await fetchUniversal(url);
+        console.warn("IG Engine 1 fail, trying Universal...", e);
     }
-    return await fetchUniversal(url);
+    return await fetchUniversalGlobal(url);
 }
 
-// 3. YouTube Engine (VKR Public Downloader)
-async function fetchYouTube(url) {
+// 3. Global Universal Engine (Support YT, Twitter, FB, IG, Pinterest)
+async function fetchUniversalGlobal(url) {
     try {
-        const res = await fetch(`https://api.vkrdown.com/yt/?url=${encodeURIComponent(url)}`);
+        // Menggunakan CoCoCut Direct Scraper Gateway
+        const targetApi = `https://api.vkrdown.com/fetch/?url=${encodeURIComponent(url)}`;
+        const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(targetApi));
         const json = await res.json();
-        if (json.data && json.data.downloads) {
-            return {
-                url: json.data.downloads[0].url,
-                thumb: json.data.thumbnail,
-                title: json.data.title || "YouTube Video"
-            };
-        }
-    } catch (e) {
-        return await fetchUniversal(url);
-    }
-    return await fetchUniversal(url);
-}
 
-// 4. Universal Engine (Twitter/X, Facebook, Pinterest, Bilibili)
-async function fetchUniversal(url) {
-    try {
-        const res = await fetch(`https://api.vkrdown.com/fetch/?url=${encodeURIComponent(url)}`);
-        const json = await res.json();
         if (json && json.data) {
-            let downloadUrl = Array.isArray(json.data) ? json.data[0].url : (json.data.url || json.data);
+            let downloadUrl = "";
+            if (Array.isArray(json.data) && json.data.length > 0) {
+                downloadUrl = json.data[0].url;
+            } else if (typeof json.data === 'object' && json.data.url) {
+                downloadUrl = json.data.url;
+            } else if (typeof json.data === 'string') {
+                downloadUrl = json.data;
+            }
+
             if (downloadUrl) {
                 return {
                     url: downloadUrl,
@@ -130,12 +122,12 @@ async function fetchUniversal(url) {
             }
         }
     } catch (e) {
-        console.error(e);
+        console.error("Universal Engine fail:", e);
     }
     return null;
 }
 
-// Render Ke Tampilan UI
+// Render Result Ke UI
 function renderResult(data, originalUrl) {
     mediaPreview.src = data.thumb;
     downloadLinkMain.href = data.url;
@@ -143,7 +135,7 @@ function renderResult(data, originalUrl) {
     resultCard.classList.remove("hidden");
 }
 
-// Loading Toggle
+// Loading Handler
 function showLoading(isLoading) {
     if (isLoading) {
         loadingState.classList.remove("hidden");
