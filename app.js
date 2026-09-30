@@ -26,21 +26,27 @@ form.addEventListener("submit", async (e) => {
             body: JSON.stringify({ url: targetUrl })
         });
 
-        const data = await response.json();
+        const json = await response.json();
 
-        if (data && data.data) {
-            let downloadUrl = Array.isArray(data.data) ? data.data[0].url : (data.data.url || data.data);
-            
-            if (downloadUrl) {
-                downloadLinkMain.href = downloadUrl;
-                mediaPreview.src = data.thumbnail || data.cover || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
-                mediaTitle.innerText = data.title || `Media dari (${new URL(targetUrl).hostname})`;
-                resultCard.classList.remove("hidden");
-            } else {
-                alert("Gagal mengekstrak media dari link tersebut.");
-            }
+        // Mengambil data media dari berbagai variasi respon Worker/API
+        let mediaData = json.data || json;
+        let downloadUrl = "";
+
+        if (typeof mediaData === "string") {
+            downloadUrl = mediaData;
+        } else if (Array.isArray(mediaData) && mediaData.length > 0) {
+            downloadUrl = mediaData[0].url || mediaData[0];
+        } else if (mediaData && mediaData.url) {
+            downloadUrl = mediaData.url;
+        }
+
+        if (downloadUrl && typeof downloadUrl === "string") {
+            downloadLinkMain.href = downloadUrl;
+            mediaPreview.src = (mediaData && mediaData.thumbnail) || (mediaData && mediaData.cover) || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
+            mediaTitle.innerText = (mediaData && mediaData.title) || `Media (${new URL(targetUrl).hostname})`;
+            resultCard.classList.remove("hidden");
         } else {
-            alert("Gagal memproses tautan. Pastikan akun tidak diprivat/tautan valid.");
+            alert("Gagal memproses tautan. Pastikan link publik dan valid.");
         }
     } catch (error) {
         console.error("Error:", error);
