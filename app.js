@@ -29,7 +29,7 @@ let currentMediaType = "video"; // 'video' atau 'image'
 let slideImages = [];
 let currentSlideIndex = 0;
 
-// Fungsi Custom Toast Notification
+// Fungsi Toast
 function showToast(message) {
     clearTimeout(toastTimeout);
     toastMessage.innerText = message;
@@ -47,7 +47,6 @@ function hideToast() {
     toast.classList.add("-translate-y-20", "opacity-0", "pointer-events-none");
 }
 
-// Helper Format Detik ke MM:SS
 function formatDuration(seconds) {
     if (!seconds || seconds === 0) return "Photo";
     const min = Math.floor(seconds / 60);
@@ -55,46 +54,77 @@ function formatDuration(seconds) {
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
-// Navigasi Slide Foto
-window.changeSlide = function(direction) {
-    if (slideImages.length === 0) return;
-    
-    currentSlideIndex += direction;
-    if (currentSlideIndex < 0) currentSlideIndex = slideImages.length - 1;
-    if (currentSlideIndex >= slideImages.length) currentSlideIndex = 0;
+// Navigasi Smooth Scroll Slide
+window.scrollSlide = function(direction) {
+    const slider = document.getElementById("imageCarousel");
+    if (!slider) return;
 
-    renderSlideView();
+    const newIndex = currentSlideIndex + direction;
+    if (newIndex >= 0 && newIndex < slideImages.length) {
+        slider.scrollTo({
+            left: slider.clientWidth * newIndex,
+            behavior: "smooth"
+        });
+    }
 };
 
-// Update Tampilan Gambar Slide Aktif & Tombol Unduh
+// Update Indikator & Tombol Unduh saat Scroll Berubah
+function handleCarouselScroll() {
+    const slider = document.getElementById("imageCarousel");
+    if (!slider) return;
+
+    const newIndex = Math.round(slider.scrollLeft / slider.clientWidth);
+    if (newIndex !== currentSlideIndex && newIndex >= 0 && newIndex < slideImages.length) {
+        currentSlideIndex = newIndex;
+        activeDownloadUrl = slideImages[currentSlideIndex];
+
+        // Update indikator teks
+        const counter = document.getElementById("slideCounter");
+        if (counter) counter.innerText = `${currentSlideIndex + 1} / ${slideImages.length}`;
+
+        // Update Label Tombol Download
+        downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto ${currentSlideIndex + 1}`;
+    }
+}
+
+// Render Carousel Slide Foto Smooth
 function renderSlideView() {
-    activeDownloadUrl = slideImages[currentSlideIndex];
+    currentSlideIndex = 0;
+    activeDownloadUrl = slideImages[0];
+
+    let slidesHtml = slideImages.map((imgUrl, index) => `
+        <div class="w-full flex-shrink-0 snap-center flex items-center justify-center p-2 min-h-[250px] max-h-[380px]">
+            <img src="${imgUrl}" class="max-w-full max-h-[360px] w-auto h-auto object-contain rounded-lg shadow-md" alt="Slide ${index + 1}">
+        </div>
+    `).join('');
 
     previewContainer.innerHTML = `
-        <div class="relative w-full h-full flex items-center justify-center group">
-            <img src="${activeDownloadUrl}" class="w-full max-h-[300px] object-contain rounded-lg p-1 transition-all duration-300" alt="Slide ${currentSlideIndex + 1}">
-            
+        <div class="relative w-full overflow-hidden group">
+            <!-- Scroll Container -->
+            <div id="imageCarousel" onscroll="handleCarouselScroll()" class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
+                ${slidesHtml}
+            </div>
+
             ${slideImages.length > 1 ? `
                 <!-- Tombol Prev -->
-                <button onclick="changeSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-8 h-8 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-95 shadow-lg">
+                <button onclick="scrollSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
                     <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
                 
                 <!-- Tombol Next -->
-                <button onclick="changeSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-8 h-8 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-95 shadow-lg">
+                <button onclick="scrollSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
                     <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
 
-                <!-- Indicator Slide -->
-                <div class="absolute bottom-2 bg-black/70 text-white text-[10px] font-mono px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                    ${currentSlideIndex + 1} /${slideImages.length}
+                <!-- Indicator Slide Counter -->
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[11px] font-mono px-3 py-1 rounded-full border border-white/10 backdrop-blur-md z-10 shadow-lg">
+                    <span id="slideCounter">1 / ${slideImages.length}</span>
                 </div>
             ` : ''}
         </div>
     `;
 
-    // Dynamic Label Tombol Download sesuai Slide
-    downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto ${currentSlideIndex + 1}`;
+    downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto 1`;
 }
 
 // Paste Button
@@ -144,7 +174,6 @@ form.addEventListener("submit", async (e) => {
                 username = json.data.author?.unique_id ? `@${json.data.author.unique_id}` : "@tiktok";
                 titleText = json.data.title || "TikTok Content";
 
-                // DETEKSI APAKAH SLIDE FOTO ATAU VIDEO
                 if (json.data.images && json.data.images.length > 0) {
                     currentMediaType = "image";
                     slideImages = json.data.images;
@@ -160,7 +189,7 @@ form.addEventListener("submit", async (e) => {
                 }
             }
         } 
-        // 2. OTHER ENGINES (Instagram, YouTube, etc)
+        // 2. OTHER ENGINES (Instagram, etc)
         else {
             mediaSourceTag.innerText = new URL(targetUrl).hostname.replace('www.', '');
             const res = await fetch("https://api.cobalt.tools/", {
@@ -203,7 +232,6 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
-            // Render Meta Info (Username, Tipe/Durasi, Resolusi)
             mediaMetaInfo.innerHTML = `
                 <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
                     <p class="text-[10px] text-gray-400">Username</p>
@@ -219,10 +247,9 @@ form.addEventListener("submit", async (e) => {
                 </div>
             `;
 
-            // Tampilan VIDEO vs FOTO SLIDE
             if (currentMediaType === "video") {
                 previewContainer.innerHTML = `
-                    <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[300px] object-contain rounded-lg"></video>
+                    <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[340px] object-contain rounded-lg p-1"></video>
                 `;
                 
                 resolutionSelectorContainer.innerHTML = `
@@ -235,7 +262,7 @@ form.addEventListener("submit", async (e) => {
                 downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Video`;
 
             } else {
-                // RENDER SLIDE FOTO
+                // RENDER CAROUSEL SLIDE SMOOTH
                 renderSlideView();
                 
                 resolutionSelectorContainer.innerHTML = `
@@ -260,7 +287,7 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// Download Process Single Photo / Video
+// Download Process Single File
 downloadBtn.addEventListener("click", () => {
     if (!activeDownloadUrl) return;
 
