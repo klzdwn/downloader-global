@@ -486,7 +486,8 @@ downloadBtn.addEventListener("click", () => {
             
             const ext = currentMediaType === "video" ? "mp4" : "jpg";
             const fileSuffix = currentMediaType === "image" && slideImages.length > 0 ? `_slide_${currentSlideIndex + 1}` : '';
-            a.download = `MediaGrab_${Date.now()}${fileSuffix}.${ext}`;
+            // NAMA FILE DIUBAH MENJADI MediaKalz_
+            a.download = `MediaKalz_${Date.now()}${fileSuffix}.${ext}`;
             
             document.body.appendChild(a);
             a.click();
