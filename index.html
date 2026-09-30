@@ -4,33 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediaGrab Global - Ultra Downloader</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans (Bikin tampilan elegan & modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
         }
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Dark Mode Styling */
         .dark body {
-            background-color: #0b0f19;
-            color: #f3f4f6;
+            background-color: #090d16;
+            color: #f1f5f9;
         }
         .dark .glass-card {
-            background: rgba(17, 24, 39, 0.75);
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .dark .glow-effect {
-            box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.2);
         }
 
         /* Light Mode Styling */
@@ -41,15 +56,19 @@
         body:not(.dark) .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 20px 30px -10px rgba(148, 163, 184, 0.15);
         }
         body:not(.dark) .glow-effect {
-            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+            box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.12);
         }
 
+        .glow-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
         .glow-btn:hover {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
         }
 
         .no-scrollbar::-webkit-scrollbar {
@@ -61,20 +80,20 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
-    <!-- Background Ambient Glow -->
-    <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-purple-600/20 dark:bg-purple-600/30 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-[-100px] right-0 w-[300px] h-[300px] bg-blue-600/15 dark:bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- Background Ambient Glow (Disesuaikan agar tidak menyakitkan mata) -->
+    <div class="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[380px] h-[380px] bg-indigo-600/20 dark:bg-indigo-500/15 rounded-full blur-[130px] pointer-events-none"></div>
+    <div class="absolute bottom-[-80px] right-0 w-[300px] h-[300px] bg-blue-500/15 dark:bg-blue-600/10 rounded-full blur-[110px] pointer-events-none"></div>
 
     <!-- Header / Navbar -->
     <header class="w-full max-w-2xl flex justify-between items-center py-4 px-2 z-10">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg">
-                <i class="fa-solid fa-bolt text-white text-lg"></i>
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-bolt text-white text-base"></i>
             </div>
-            <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-700 to-purple-500 dark:from-white dark:via-gray-200 dark:to-purple-400">
-                MediaGrab<span class="text-purple-500">.Global</span>
+            <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                MediaGrab<span class="bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">.Global</span>
             </span>
         </div>
 
@@ -82,7 +101,7 @@
         <div class="flex items-center gap-2">
             <!-- Language Selector -->
             <div class="relative">
-                <select id="langSelect" class="bg-gray-200/80 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-gray-300 dark:border-gray-700 focus:outline-none cursor-pointer backdrop-blur-md transition-colors">
+                <select id="langSelect" class="bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 focus:outline-none cursor-pointer backdrop-blur-md transition-all shadow-sm">
                     <option value="id">🇮🇩 ID</option>
                     <option value="en">🇬🇧 EN</option>
                     <option value="ms">🇲🇾 MS</option>
@@ -90,47 +109,47 @@
             </div>
 
             <!-- Dark / Light Toggle -->
-            <button id="themeToggleBtn" class="w-8 h-8 rounded-xl bg-gray-200/80 dark:bg-gray-800/80 text-gray-700 dark:text-amber-400 border border-gray-300 dark:border-gray-700 flex items-center justify-center transition-all active:scale-90 backdrop-blur-md" title="Ganti Tema">
-                <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
+            <button id="themeToggleBtn" class="w-9 h-9 rounded-xl bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-amber-400 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center transition-all active:scale-90 backdrop-blur-md shadow-sm" title="Ganti Tema">
+                <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
             </button>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="w-full max-w-xl my-auto z-10 flex flex-col gap-6">
+    <main class="w-full max-w-xl my-auto z-10 flex flex-col gap-6 py-4">
 
         <!-- Hero Section -->
         <div class="text-center space-y-3">
-            <span id="heroBadge" class="text-xs font-bold tracking-widest text-purple-600 dark:text-purple-400 uppercase px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">
-                Multi-Platform Global Downloader
+            <span id="heroBadge" class="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-indigo-600 dark:text-indigo-400 uppercase px-3.5 py-1 bg-indigo-500/10 dark:bg-indigo-400/10 rounded-full border border-indigo-500/20">
+                <i class="fa-solid fa-layer-group text-[10px]"></i> Multi-Platform Global Downloader
             </span>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight">
                 <span id="heroTitle1">Download Video & Foto</span> <br>
-                <span id="heroTitle2" class="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400">
+                <span id="heroTitle2" class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-blue-500 to-teal-400 dark:from-indigo-400 dark:via-sky-400 dark:to-teal-300">
                     Tanpa Watermark HD
                 </span>
             </h1>
-            <p id="heroSubtitle" class="text-xs text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+            <p id="heroSubtitle" class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
                 Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.
             </p>
         </div>
 
         <!-- Input Box Form -->
-        <div id="inputCard" class="glass-card p-4 sm:p-5 rounded-2xl glow-effect space-y-3">
+        <div id="inputCard" class="glass-card p-4 sm:p-5 rounded-2xl glow-effect space-y-3 transition-all">
             <form id="downloadForm" class="flex flex-col gap-3">
                 <div class="relative flex items-center">
-                    <i class="fa-solid fa-link absolute left-4 text-gray-400 text-sm"></i>
+                    <i class="fa-solid fa-link absolute left-4 text-slate-400 text-sm"></i>
                     <input 
                         type="url" 
                         id="urlInput" 
                         placeholder="Tempel tautan video/foto di sini..." 
                         required
-                        class="w-full bg-gray-100/80 dark:bg-gray-900/90 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm rounded-xl pl-11 pr-20 py-3.5 border border-gray-200 dark:border-gray-700/50 focus:outline-none focus:border-purple-500 transition-all"
+                        class="w-full bg-slate-50 dark:bg-slate-900/90 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm rounded-xl pl-11 pr-24 py-3.5 border border-slate-200 dark:border-slate-700/80 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     >
                     <button 
                         type="button" 
                         id="pasteBtn"
-                        class="absolute right-2 text-xs font-medium bg-purple-100 hover:bg-purple-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-lg border border-purple-200 dark:border-purple-500/20 transition-all flex items-center gap-1"
+                        class="absolute right-2 text-xs font-semibold bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
                     >
                         <i class="fa-regular fa-clipboard"></i> <span id="pasteBtnText">Paste</span>
                     </button>
@@ -139,30 +158,30 @@
                 <button 
                     type="submit" 
                     id="btnSubmit"
-                    class="w-full py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-bold rounded-xl shadow-lg glow-btn transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+                    class="w-full py-3.5 glow-btn text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-md"
                 >
-                    <i class="fa-solid fa-arrow-down"></i> <span id="btnSubmitText">Process Media</span>
+                    <i class="fa-solid fa-arrow-down-long"></i> <span id="btnSubmitText">Process Media</span>
                 </button>
             </form>
 
             <!-- Loading State -->
             <div id="loadingState" class="hidden py-4 text-center space-y-2">
-                <div class="inline-block w-7 h-7 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p id="loadingText" class="text-xs text-gray-500 dark:text-gray-400">Sedang mengekstrak media dari server...</p>
+                <div class="inline-block w-7 h-7 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                <p id="loadingText" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Sedang mengekstrak media dari server...</p>
             </div>
         </div>
 
         <!-- Result Card -->
         <div id="resultCard" class="hidden glass-card p-4 sm:p-5 rounded-2xl space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-200/80 dark:border-gray-800">
-                <span id="mediaFoundLabel" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-slate-800">
+                <span id="mediaFoundLabel" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-check"></i> Media Ditemukan
                 </span>
-                <span class="text-[10px] bg-gray-200/70 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-md font-mono" id="mediaSourceTag">Public</span>
+                <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md font-mono font-semibold border border-slate-200 dark:border-slate-700" id="mediaSourceTag">Public</span>
             </div>
 
             <!-- Media Preview Container Adaptif Tema -->
-            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-gray-100/80 dark:bg-black/60 border border-gray-200/80 dark:border-gray-800 min-h-[220px] flex items-center justify-center transition-colors">
+            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 min-h-[220px] flex items-center justify-center transition-colors">
                 <!-- Diisi via JS -->
             </div>
 
@@ -172,14 +191,14 @@
             </div>
 
             <!-- Title Info -->
-            <p id="mediaTitle" class="text-xs text-gray-800 dark:text-gray-200 font-medium line-clamp-2 leading-relaxed">
+            <p id="mediaTitle" class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium line-clamp-2 leading-relaxed">
                 Judul Media
             </p>
 
             <!-- Choice Resolution Selector -->
             <div id="resolutionBox" class="space-y-1.5 pt-1">
-                <label id="qualityLabel" class="text-[11px] font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                    <i class="fa-solid fa-sliders text-purple-500"></i> Pilih Kualitas / Resolusi:
+                <label id="qualityLabel" class="text-[11px] font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-indigo-500"></i> Pilih Kualitas / Resolusi:
                 </label>
                 <div id="resolutionSelectorContainer"></div>
             </div>
@@ -189,18 +208,18 @@
                 <!-- Progress Container -->
                 <div id="progressBox" class="hidden space-y-1.5">
                     <div class="flex justify-between text-xs">
-                        <span id="progressStatus" class="text-purple-600 dark:text-purple-400 font-medium">Proses Unduh...</span>
-                        <span id="progressPercent" class="text-gray-900 dark:text-white font-bold">0%</span>
+                        <span id="progressStatus" class="text-indigo-600 dark:text-indigo-400 font-semibold">Proses Unduh...</span>
+                        <span id="progressPercent" class="text-slate-900 dark:text-white font-bold">0%</span>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-gray-300 dark:border-gray-700">
-                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400 h-full w-0% rounded-full transition-all duration-200"></div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-300 dark:border-slate-700">
+                        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-sky-400 to-emerald-400 h-full w-0 rounded-full transition-all duration-200"></div>
                     </div>
                 </div>
 
                 <!-- Tombol Unduh Utama -->
                 <button 
                     id="downloadBtn" 
-                    class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-900/20"
+                    class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
                 >
                     <i class="fa-solid fa-download"></i> <span id="downloadBtnText">Unduh Video</span>
                 </button>
@@ -209,7 +228,7 @@
                 <button 
                     id="backBtn" 
                     type="button"
-                    class="w-full py-2.5 bg-gray-200/80 hover:bg-gray-300/80 dark:bg-gray-800/80 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-xl border border-gray-300/60 dark:border-gray-700/60 transition-all flex items-center justify-center gap-2 active:scale-95"
+                    class="w-full py-2.5 bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl border border-slate-300/60 dark:border-slate-700/60 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                     <i class="fa-solid fa-arrow-left"></i> <span id="backBtnText">Kembali & Tempel Link Lain</span>
                 </button>
@@ -220,22 +239,22 @@
 
     <!-- Custom Toast Notification Container -->
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none w-[90%] max-w-md">
-        <div class="glass-card bg-white/90 dark:bg-gray-900/90 border border-red-500/40 text-gray-900 dark:text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-xl">
-            <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0 border border-red-500/30">
-                <i class="fa-solid fa-circle-exclamation text-lg"></i>
+        <div class="glass-card bg-white/95 dark:bg-slate-900/95 border border-rose-500/40 text-slate-900 dark:text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-xl">
+            <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-500 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/20">
+                <i class="fa-solid fa-circle-exclamation text-base"></i>
             </div>
             <div class="flex-1">
-                <h4 id="toastTitle" class="text-xs font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">Terjadi Kesalahan</h4>
-                <p id="toastMessage" class="text-xs text-gray-600 dark:text-gray-300 font-medium leading-snug">Pesan error di sini...</p>
+                <h4 id="toastTitle" class="text-xs font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Terjadi Kesalahan</h4>
+                <p id="toastMessage" class="text-xs text-slate-600 dark:text-slate-300 font-medium leading-snug">Pesan error di sini...</p>
             </div>
-            <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 text-sm">
+            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 text-sm">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="w-full max-w-xl text-center py-4 text-[11px] text-gray-500 dark:text-gray-400 z-10">
+    <footer class="w-full max-w-xl text-center py-4 text-[11px] text-slate-500 dark:text-slate-400 z-10 font-medium">
         &copy; 2026 MediaGrab Global. Fast, Free & Secure.
     </footer>
 
