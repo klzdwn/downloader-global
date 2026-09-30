@@ -77,7 +77,7 @@ const translations = {
         downloadPhoto: "Muat Turun Foto",
         downloadPhotoSlide: "Muat Turun Foto",
         backBtn: "Kembali & Tampal Pautan Lain",
-        clipboardError: "Benarkan akses papapan keratan pada penyemak imbas anda.",
+        clipboardError: "Benarkan akses papan keratan pada penyemak imbas anda.",
         fetchError: "Gagal mengambil media. Pastikan pautan adalah awam dan sah.",
         connError: "Ralat sambungan semasa mengekstrak media.",
         downloading: "Memuat turun",
@@ -383,17 +383,18 @@ form.addEventListener("submit", async (e) => {
             activeDownloadUrl = downloadUrl;
             mediaTitle.innerText = titleText;
 
+            // Badge Metadata Adaptif Tema
             mediaMetaInfo.innerHTML = `
-                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">${t.usernameLabel}</p>
+                <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400">${t.usernameLabel}</p>
                     <p class="text-xs font-semibold text-purple-600 dark:text-purple-300 truncate">${username}</p>
                 </div>
-                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">${currentMediaType === 'image' ? t.typeLabel : t.durationLabel}</p>
+                <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400">${currentMediaType === 'image' ? t.typeLabel : t.durationLabel}</p>
                     <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">${durationText}</p>
                 </div>
-                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">${t.resLabel}</p>
+                <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400">${t.resLabel}</p>
                     <p class="text-xs font-semibold text-blue-600 dark:text-blue-400">${originalRes}</p>
                 </div>
             `;
@@ -403,8 +404,9 @@ form.addEventListener("submit", async (e) => {
                     <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[340px] object-contain rounded-lg p-1"></video>
                 `;
                 
+                // Select Resolusi Adaptif Tema
                 resolutionSelectorContainer.innerHTML = `
-                    <select id="resSelect" class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/30 text-gray-900 dark:text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500">
+                    <select id="resSelect" class="w-full bg-gray-100/80 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/30 text-gray-900 dark:text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500 transition-colors">
                         <option value="1080">1080p (Ultra HD)</option>
                         <option value="720" selected>720p (HD Standard)</option>
                         <option value="480">480p (SD Low)</option>
@@ -415,8 +417,9 @@ form.addEventListener("submit", async (e) => {
             } else {
                 renderSlideView();
                 
+                // Badge Kualitas Gambar Adaptif Tema
                 resolutionSelectorContainer.innerHTML = `
-                    <div class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
+                    <div class="w-full bg-gray-100/80 dark:bg-gray-900 border border-gray-200/80 dark:border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors">
                         <span><i class="fa-regular fa-image"></i> ${t.photoQuality}</span>
                         <span class="bg-purple-500/10 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">${t.fullHdOrig}</span>
                     </div>
