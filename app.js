@@ -1,5 +1,3 @@
-const WORKER_URL = "https://dwnder-kalz.alfandiibnunugroho7.workers.dev/";
-
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
 const btnSubmit = document.getElementById("btnSubmit");
@@ -20,37 +18,63 @@ form.addEventListener("submit", async (e) => {
     resultCard.classList.add("hidden");
 
     try {
-        const response = await fetch(WORKER_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: targetUrl })
-        });
-
-        const json = await response.json();
-
-        // Mengambil data media dari berbagai variasi respon Worker/API
-        let mediaData = json.data || json;
         let downloadUrl = "";
+        let coverImg = "";
+        let titleText = "";
 
-        if (typeof mediaData === "string") {
-            downloadUrl = mediaData;
-        } else if (Array.isArray(mediaData) && mediaData.length > 0) {
-            downloadUrl = mediaData[0].url || mediaData[0];
-        } else if (mediaData && mediaData.url) {
-            downloadUrl = mediaData.url;
+        // 1. TIKTOK ENGINE
+        if (targetUrl.includes("tiktok.com") || targetUrl.includes("douyin.com")) {
+            const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(targetUrl)}`);
+            const json = await res.json();
+            if (json && json.data) {
+                downloadUrl = json.data.play;
+                coverImg = json.data.cover;
+                titleText = json.data.title || "TikTok Video";
+            }
+        } 
+        // 2. SPOTIFY ENGINE
+        else if (targetUrl.includes("spotify.com")) {
+            const res = await fetch(`https://api.spotifydown.com/download/${encodeURIComponent(targetUrl)}`, {
+                headers: { "Origin": "https://spotifydown.com" }
+            });
+            const json = await res.json();
+            if (json && json.success) {
+                downloadUrl = json.link;
+                coverImg = json.metadata.cover;
+                titleText = `${json.metadata.title} - ${json.metadata.artists}`;
+            }
+        } 
+        // 3. YOUTUBE & INSTAGRAM ENGINE (COBALT PUBLIC)
+        else {
+            const res = await fetch("https://api.cobalt.tools/", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url: targetUrl, videoQuality: "720" })
+            });
+            const json = await res.json();
+            if (json && (json.url || json.picker)) {
+                downloadUrl = json.url || (json.picker && json.picker[0]?.url);
+                coverImg = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
+                titleText = `Media (${new URL(targetUrl).hostname})`;
+            }
         }
 
-        if (downloadUrl && typeof downloadUrl === "string") {
+        // TAMPILKAN HASIL
+        if (downloadUrl) {
             downloadLinkMain.href = downloadUrl;
-            mediaPreview.src = (mediaData && mediaData.thumbnail) || (mediaData && mediaData.cover) || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
-            mediaTitle.innerText = (mediaData && mediaData.title) || `Media (${new URL(targetUrl).hostname})`;
+            mediaPreview.src = coverImg || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
+            mediaTitle.innerText = titleText;
             resultCard.classList.remove("hidden");
         } else {
-            alert("Gagal memproses tautan. Pastikan link publik dan valid.");
+            alert("Gagal memproses link. Pastikan tautan publik & valid!");
         }
+
     } catch (error) {
         console.error("Error:", error);
-        alert("Terjadi kesalahan koneksi ke server Cloudflare.");
+        alert("Gagal mengambil data dari server API.");
     } finally {
         showLoading(false);
     }
