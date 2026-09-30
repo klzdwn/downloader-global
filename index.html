@@ -33,35 +33,40 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Dark Mode Styling (Full Deep Dark) */
-        .dark body {
+        /* -------------------------------------------
+           1. DARK MODE SPECIFIC STYLES (Full Deep Dark)
+        ------------------------------------------- */
+        html.dark body {
             background-color: #030712 !important;
             color: #f8fafc !important;
         }
-        .dark .glass-card {
-            background: rgba(15, 23, 42, 0.95);
+        html.dark .glass-card {
+            background-color: rgba(15, 23, 42, 0.95) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5) !important;
         }
-        .dark .glow-effect {
-            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.25);
+        html.dark .glow-effect {
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.25) !important;
         }
 
-        /* Light Mode Styling (Mode Terang) */
-        body:not(.dark) {
-            background-color: #f8fafc;
-            color: #0f172a;
+        /* -------------------------------------------
+           2. LIGHT MODE SPECIFIC STYLES (Mode Terang)
+        ------------------------------------------- */
+        html:not(.dark) body {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
         }
-        body:not(.dark) .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+        html:not(.dark) .glass-card {
+            background-color: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 20px 30px -10px rgba(148, 163, 184, 0.15);
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 20px 30px -10px rgba(148, 163, 184, 0.2) !important;
         }
-        body:not(.dark) .glow-effect {
-            box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.12);
+        html:not(.dark) .glow-effect {
+            box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.15) !important;
         }
 
         .glow-btn {
@@ -138,7 +143,7 @@
         <div id="inputCard" class="glass-card p-4 sm:p-5 rounded-2xl glow-effect space-y-3 transition-all">
             <form id="downloadForm" class="flex flex-col gap-3">
                 <div class="relative flex items-center">
-                    <i class="fa-solid fa-link absolute left-4 text-slate-400 text-sm"></i>
+                    <i class="fa-solid fa-link absolute left-4 text-slate-400 dark:text-slate-500 text-sm"></i>
                     <input 
                         type="url" 
                         id="urlInput" 
@@ -180,7 +185,7 @@
                 <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md font-mono font-semibold border border-slate-200 dark:border-slate-700" id="mediaSourceTag">Public</span>
             </div>
 
-            <!-- Media Preview Container Adaptif Tema -->
+            <!-- Media Preview Container -->
             <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 min-h-[220px] flex items-center justify-center transition-colors">
                 <!-- Diisi via JS -->
             </div>
