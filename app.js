@@ -1,18 +1,16 @@
 /**
  * Global Media Downloader Engine
- * Powered by Cobalt API (Open-Source Multi-Platform Media Engine)
+ * Updated dengan CORS Proxy & Fallback API
  */
 
-// Konfigurasi Endpoint API (Tempat Khusus API)
+// Konfigurasi Endpoint API
 const API_CONFIG = {
-    // URL Server Cobalt API Publik (Dapat diganti dengan VPS / Self-Hosted milik sendiri)
-    ENDPOINT: "https://api.cobalt.tools/api/json",
+    // Menggunakan CORS Proxy agar request dari GitHub Pages tidak diblokir browser
+    PROXY: "https://corsproxy.io/?",
+    COBALT_ENDPOINT: "https://api.cobalt.tools/api/json",
     
-    // Header standar untuk request JSON
-    HEADERS: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }
+    // Backup API (Jika Cobalt Public sedang offline/rate-limited)
+    TIKWM_ENDPOINT: "https://www.tikwm.com/api/"
 };
 
 // Inisialisasi Elemen DOM
@@ -26,105 +24,126 @@ const resultCard = document.getElementById("resultCard");
 const mediaPreview = document.getElementById("mediaPreview");
 const mediaTitle = document.getElementById("mediaTitle");
 const downloadLinkMain = document.getElementById("downloadLinkMain");
-const downloadLinkAudio = document.getElementById("downloadLinkAudio");
 
-// Event Listener 1: Tombol Paste
-btnPaste.addEventListener("click", async () => {
-    try {
-        const text = await navigator.clipboard.readText();
-        urlInput.value = text;
-    } catch (err) {
-        alert("Gagal membaca clipboard. Silakan paste manual.");
-    }
-});
+// Event Listener: Paste
+if (btnPaste) {
+    btnPaste.addEventListener("click", async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            urlInput.value = text;
+        } catch (err) {
+            alert("Gagal membaca clipboard.");
+        }
+    });
+}
 
-// Event Listener 2: Form Submit & Process API Request
+// Event Listener: Submit Form
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const targetUrl = urlInput.value.trim();
 
     if (!targetUrl) return;
 
-    // Tampilkan Loading & Sembunyikan Hasil Sebelumnya
     showLoading(true);
     resultCard.classList.add("hidden");
 
     try {
-        // Pemanggilan API utama menggunakan fungsi terpisah
-        const data = await fetchMediaFromCobalt(targetUrl);
+        let data = null;
 
-        if (data && (data.url || data.picker || data.status === "redirect")) {
+        // Coba request via Cobalt dengan CORS Proxy
+        try {
+            data = await fetchFromCobalt(targetUrl);
+        } catch (err) {
+            console.warn("Cobalt API gagal/CORS error, mencoba fallback API...", err);
+        }
+
+        // Jika Cobalt gagal dan tautan adalah TikTok, coba fallback TikWM API
+        if ((!data || !data.url) && targetUrl.includes("tiktok.com")) {
+            data = await fetchFromTikWM(targetUrl);
+        }
+
+        if (data && (data.url || data.picker)) {
             renderResult(data, targetUrl);
         } else {
-            alert("Gagal memproses media. Pastikan tautan publik & valid.");
+            alert("Gagal mengambil media. Pastikan tautan publik & valid, atau coba beberapa saat lagi.");
         }
     } catch (error) {
         console.error("API Error:", error);
-        alert("Terjadi kesalahan koneksi saat menghubungi server API.");
+        alert("Terjadi kesalahan jaringan. Periksa koneksi internet atau coba link lain.");
     } finally {
         showLoading(false);
     }
 });
 
 /**
- * Fungsi Terpisah Khusus Request ke Cobalt API
- * @param {string} url - Link media dari sosmed
+ * Fetch via Cobalt Engine (With CORS Proxy)
  */
-async function fetchMediaFromCobalt(url) {
-    const response = await fetch(API_CONFIG.ENDPOINT, {
+async function fetchFromCobalt(url) {
+    // Lewatkan request melalui CORS Proxy
+    const targetApi = API_CONFIG.PROXY + encodeURIComponent(API_CONFIG.COBALT_ENDPOINT);
+
+    const response = await fetch(targetApi, {
         method: "POST",
-        headers: API_CONFIG.HEADERS,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
         body: JSON.stringify({
             url: url,
-            videoQuality: "max", // Mengambil kualitas video tertinggi
-            filenamePattern: "basic"
+            videoQuality: "max"
         })
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP Error! Status: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error("Cobalt API failed");
     return await response.json();
 }
 
 /**
- * Fungsi untuk Menampilkan Hasil Media ke Tampilan (UI)
+ * Fallback API khusus TikTok (TikWM) jika Cobalt error
+ */
+async function fetchFromTikWM(url) {
+    const response = await fetch(`${API_CONFIG.TIKWM_ENDPOINT}?url=${encodeURIComponent(url)}`);
+    const json = await response.json();
+    
+    if (json.code === 0 && json.data) {
+        return {
+            url: json.data.play, // Video tanpa watermark
+            picker: json.data.images ? json.data.images.map(img => ({ url: img })) : null,
+            thumb: json.data.cover
+        };
+    }
+    return null;
+}
+
+/**
+ * Render Hasil ke UI
  */
 function renderResult(data, originalUrl) {
-    // 1. Set URL Download Utama
-    let finalDownloadUrl = data.url;
+    let finalUrl = data.url;
 
-    // Jika response berupa gallery/slide (picker mode)
-    if (data.status === "picker" && data.picker.length > 0) {
-        finalDownloadUrl = data.picker[0].url;
-        if (data.picker[0].thumb) {
-            mediaPreview.src = data.picker[0].thumb;
-        }
+    if (data.picker && data.picker.length > 0) {
+        finalUrl = data.picker[0].url;
+        if (data.picker[0].thumb) mediaPreview.src = data.picker[0].thumb;
+    } else if (data.thumb) {
+        mediaPreview.src = data.thumb;
     } else {
-        // Thumbnail default placeholder jika API tidak memberikan gambar
         mediaPreview.src = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80";
     }
 
-    // 2. Set Link & Judul
-    downloadLinkMain.href = finalDownloadUrl;
-    mediaTitle.innerText = `Media ditemukan dari: ${new URL(originalUrl).hostname}`;
-
-    // 3. Tampilkan Card Hasil
+    downloadLinkMain.href = finalUrl;
+    mediaTitle.innerText = `Media berhasil diproses (${new URL(originalUrl).hostname})`;
     resultCard.classList.remove("hidden");
 }
 
 /**
- * Utility: Toggle Status Loading
+ * Helper Loading State
  */
 function showLoading(isLoading) {
     if (isLoading) {
         loadingState.classList.remove("hidden");
         btnSubmit.disabled = true;
-        btnSubmit.style.opacity = "0.7";
     } else {
         loadingState.classList.add("hidden");
         btnSubmit.disabled = false;
-        btnSubmit.style.opacity = "1";
     }
 }
