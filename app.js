@@ -1,377 +1,580 @@
-// ==========================================
-// 1. STATE & GLOBAL VARIABLES
-// ==========================================
-let currentTheme = localStorage.getItem("app_theme") || "dark";
-let currentLang = localStorage.getItem("app_lang") || "id";
-let downloadAbortController = null; // Controller untuk membatalkan fetch download
-
-// Dictionary Bahasa
+// Dictionary Bahasa (ID, EN, MS)
 const translations = {
     id: {
-        heroBadge: '<i class="fa-solid fa-layer-group text-[10px]"></i> Multi-Platform Global Downloader',
-        heroTitle1: 'Download Video & Foto',
-        heroTitle2: 'Tanpa Watermark HD',
-        heroSubtitle: 'Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.',
-        placeholder: 'Tempel tautan video/foto di sini...',
-        pasteBtn: 'Paste',
-        btnSubmit: 'Process Media',
-        loadingText: 'Sedang mengekstrak media dari server...',
-        mediaFound: '<i class="fa-solid fa-circle-check"></i> Media Ditemukan',
-        qualityLabel: '<i class="fa-solid fa-sliders text-indigo-500 dark:text-indigo-400"></i> Pilih Kualitas / Resolusi:',
-        downloadBtn: 'Unduh Video',
-        backBtn: 'Kembali & Tempel Link Lain',
-        progressStatus: 'Proses Unduh...',
-        cancelBtn: 'Batal Unduh',
-        toastErrorTitle: 'Terjadi Kesalahan',
-        toastCancelled: 'Pengunduhan Dibatalkan',
-        toastCancelledMsg: 'Proses pengunduhan media telah dibatalkan.'
+        heroBadge: "Multi-Platform Global Downloader",
+        heroTitle1: "Download Video & Foto",
+        heroTitle2: "Tanpa Watermark HD",
+        heroSubtitle: "Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.",
+        inputPlaceholder: "Tempel tautan video/foto di sini...",
+        pasteBtn: "Paste",
+        processBtn: "Process Media",
+        loadingText: "Sedang mengekstrak media dari server...",
+        mediaFound: "Media Ditemukan",
+        qualityLabel: "Pilih Kualitas / Resolusi:",
+        downloadVideo: "Unduh Video",
+        downloadPhoto: "Unduh Foto",
+        downloadPhotoSlide: "Unduh Foto",
+        backBtn: "Kembali & Tempel Link Lain",
+        clipboardError: "Izinkan akses clipboard di browser HP kamu.",
+        fetchError: "Gagal mengambil media. Pastikan tautan publik dan valid.",
+        connError: "Terjadi kesalahan koneksi saat mengekstrak media.",
+        downloading: "Mengunduh",
+        preparing: "Menyiapkan file...",
+        finished: "Selesai!",
+        downloadComplete: "Unduhan Selesai",
+        toastTitle: "Terjadi Kesalahan",
+        photoQuality: "Kualitas Gambar",
+        fullHdOrig: "Full HD Original",
+        usernameLabel: "Username",
+        typeLabel: "Tipe",
+        durationLabel: "Durasi",
+        resLabel: "Resolusi Asli",
+        photoSlideTag: "Foto Slide"
     },
     en: {
-        heroBadge: '<i class="fa-solid fa-layer-group text-[10px]"></i> Multi-Platform Global Downloader',
-        heroTitle1: 'Download Video & Photo',
-        heroTitle2: 'No Watermark HD',
-        heroSubtitle: 'Download content from TikTok, Instagram, YouTube, Twitter/X, Pinterest & other global platforms instantly.',
-        placeholder: 'Paste video/photo link here...',
-        pasteBtn: 'Paste',
-        btnSubmit: 'Process Media',
-        loadingText: 'Extracting media from server...',
-        mediaFound: '<i class="fa-solid fa-circle-check"></i> Media Found',
-        qualityLabel: '<i class="fa-solid fa-sliders text-indigo-500 dark:text-indigo-400"></i> Select Quality / Resolution:',
-        downloadBtn: 'Download Video',
-        backBtn: 'Back & Paste Another Link',
-        progressStatus: 'Downloading...',
-        cancelBtn: 'Cancel Download',
-        toastErrorTitle: 'Error Occurred',
-        toastCancelled: 'Download Cancelled',
-        toastCancelledMsg: 'The media download process has been cancelled.'
+        heroBadge: "Multi-Platform Global Downloader",
+        heroTitle1: "Download Video & Photos",
+        heroTitle2: "Without Watermark HD",
+        heroSubtitle: "Download content instantly from TikTok, Instagram, YouTube, Twitter/X, Pinterest & other global platforms.",
+        inputPlaceholder: "Paste video/photo link here...",
+        pasteBtn: "Paste",
+        processBtn: "Process Media",
+        loadingText: "Extracting media from server...",
+        mediaFound: "Media Found",
+        qualityLabel: "Select Quality / Resolution:",
+        downloadVideo: "Download Video",
+        downloadPhoto: "Download Photo",
+        downloadPhotoSlide: "Download Photo",
+        backBtn: "Back & Paste Another Link",
+        clipboardError: "Allow clipboard access in your browser.",
+        fetchError: "Failed to fetch media. Make sure link is public and valid.",
+        connError: "Connection error while extracting media.",
+        downloading: "Downloading",
+        preparing: "Preparing file...",
+        finished: "Finished!",
+        downloadComplete: "Download Complete",
+        toastTitle: "An Error Occurred",
+        photoQuality: "Image Quality",
+        fullHdOrig: "Full HD Original",
+        usernameLabel: "Username",
+        typeLabel: "Type",
+        durationLabel: "Duration",
+        resLabel: "Original Res",
+        photoSlideTag: "Photo Slide"
     },
     ms: {
-        heroBadge: '<i class="fa-solid fa-layer-group text-[10px]"></i> Pengunduh Global Multi-Platform',
-        heroTitle1: 'Muat Turun Video & Foto',
-        heroTitle2: 'Tanpa Tanda Air HD',
-        heroSubtitle: 'Muat turun kandungan daripada TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lain secara paparan instan.',
-        placeholder: 'Tampal pautan video/foto di sini...',
-        pasteBtn: 'Tampal',
-        btnSubmit: 'Proses Media',
-        loadingText: 'Mengekstrak media daripada pelayan...',
-        mediaFound: '<i class="fa-solid fa-circle-check"></i> Media Ditemui',
-        qualityLabel: '<i class="fa-solid fa-sliders text-indigo-500 dark:text-indigo-400"></i> Pilih Kualiti / Resolusi:',
-        downloadBtn: 'Muat Turun Video',
-        backBtn: 'Kembali & Tampal Pautan Lain',
-        progressStatus: 'Proses Memuat Turun...',
-        cancelBtn: 'Batal Muat Turun',
-        toastErrorTitle: 'Ralat Berlaku',
-        toastCancelled: 'Muat Turun Dibatalkan',
-        toastCancelledMsg: 'Proses muat turun media telah dibatalkan.'
+        heroBadge: "Pemuat Turun Global Pelbagai Platform",
+        heroTitle1: "Muat Turun Video & Foto",
+        heroTitle2: "Tanpa Watermark HD",
+        heroSubtitle: "Muat turun kandungan dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform lain secara segera.",
+        inputPlaceholder: "Tampal pautan video/foto di sini...",
+        pasteBtn: "Tampal",
+        processBtn: "Proses Media",
+        loadingText: "Mengekstrak media daripada pelayan...",
+        mediaFound: "Media Ditemui",
+        qualityLabel: "Pilih Kualiti / Resolusi:",
+        downloadVideo: "Muat Turun Video",
+        downloadPhoto: "Muat Turun Foto",
+        downloadPhotoSlide: "Muat Turun Foto",
+        backBtn: "Kembali & Tampal Pautan Lain",
+        clipboardError: "Benarkan akses papan keratan pada penyemak imbas anda.",
+        fetchError: "Gagal mengambil media. Pastikan pautan adalah awam dan sah.",
+        connError: "Ralat sambungan semasa mengekstrak media.",
+        downloading: "Memuat turun",
+        preparing: "Menyediakan fail...",
+        finished: "Selesai!",
+        downloadComplete: "Muat Turun Selesai",
+        toastTitle: "Ralat Berlaku",
+        photoQuality: "Kualiti Gambar",
+        fullHdOrig: "Full HD Asal",
+        usernameLabel: "Nama Pengguna",
+        typeLabel: "Jenis",
+        durationLabel: "Masa",
+        resLabel: "Resolusi Asal",
+        photoSlideTag: "Slaid Foto"
     }
 };
 
-// ==========================================
-// 2. DOM ELEMENTS
-// ==========================================
-const htmlEl = document.documentElement;
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const themeIcon = document.getElementById('themeIcon');
-const langSelect = document.getElementById('langSelect');
+// State Variables
+let currentLang = localStorage.getItem("app_lang") || "id";
+let activeDownloadUrl = "";
+let currentMediaType = "video";
+let slideImages = [];
+let currentSlideIndex = 0;
 
-const downloadForm = document.getElementById('downloadForm');
-const urlInput = document.getElementById('urlInput');
-const pasteBtn = document.getElementById('pasteBtn');
-const btnSubmit = document.getElementById('btnSubmit');
-const loadingState = document.getElementById('loadingState');
+// DOM Elements
+const form = document.getElementById("downloadForm");
+const urlInput = document.getElementById("urlInput");
+const pasteBtn = document.getElementById("pasteBtn");
+const btnSubmit = document.getElementById("btnSubmit");
+const loadingState = document.getElementById("loadingState");
 
-const inputCard = document.getElementById('inputCard');
-const resultCard = document.getElementById('resultCard');
-const previewContainer = document.getElementById('previewContainer');
-const mediaMetaInfo = document.getElementById('mediaMetaInfo');
-const mediaTitle = document.getElementById('mediaTitle');
-const mediaSourceTag = document.getElementById('mediaSourceTag');
-const resolutionSelectorContainer = document.getElementById('resolutionSelectorContainer');
+const resultCard = document.getElementById("resultCard");
+const previewContainer = document.getElementById("previewContainer");
+const mediaMetaInfo = document.getElementById("mediaMetaInfo");
+const mediaTitle = document.getElementById("mediaTitle");
+const mediaSourceTag = document.getElementById("mediaSourceTag");
+const resolutionSelectorContainer = document.getElementById("resolutionSelectorContainer");
 
-const downloadBtn = document.getElementById('downloadBtn');
-const backBtn = document.getElementById('backBtn');
-const cancelBtn = document.getElementById('cancelBtn');
+const downloadBtn = document.getElementById("downloadBtn");
+const backBtn = document.getElementById("backBtn");
+const progressBox = document.getElementById("progressBox");
+const progressBar = document.getElementById("progressBar");
+const progressPercent = document.getElementById("progressPercent");
+const progressStatus = document.getElementById("progressStatus");
 
-const progressBox = document.getElementById('progressBox');
-const progressBar = document.getElementById('progressBar');
-const progressPercent = document.getElementById('progressPercent');
+const toast = document.getElementById("toast");
+const toastMessage = document.getElementById("toastMessage");
+let toastTimeout;
 
-const toast = document.getElementById('toast');
-const toastTitle = document.getElementById('toastTitle');
-const toastMessage = document.getElementById('toastMessage');
+// ------------------- DARK / LIGHT MODE -------------------
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeIcon = document.getElementById("themeIcon");
 
-// ==========================================
-// 3. INITIALIZATION & THEME/LANG LOGIC
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Setup Theme
-    applyTheme(currentTheme);
-
-    // Setup Language
-    langSelect.value = currentLang;
-    applyLanguage(currentLang);
-
-    // Event Switch Theme
-    themeToggleBtn.addEventListener('click', () => {
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('app_theme', currentTheme);
-        applyTheme(currentTheme);
-    });
-
-    // Event Switch Language
-    langSelect.addEventListener('change', (e) => {
-        currentLang = e.target.value;
-        localStorage.setItem('app_lang', currentLang);
-        applyLanguage(currentLang);
-    });
-});
-
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        htmlEl.classList.add('dark');
-        themeIcon.className = 'fa-solid fa-sun text-amber-400 text-sm';
+function initTheme() {
+    const savedTheme = localStorage.getItem("app_theme") || "dark";
+    if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+        if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-400 text-xs";
     } else {
-        htmlEl.classList.remove('dark');
-        themeIcon.className = 'fa-solid fa-moon text-slate-700 text-sm';
+        document.documentElement.classList.remove("dark");
+        if (themeIcon) themeIcon.className = "fa-solid fa-moon text-gray-700 text-xs";
     }
 }
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+        const isDark = document.documentElement.classList.toggle("dark");
+        localStorage.setItem("app_theme", isDark ? "dark" : "light");
+        if (themeIcon) {
+            themeIcon.className = isDark ? "fa-solid fa-sun text-amber-400 text-xs" : "fa-solid fa-moon text-gray-700 text-xs";
+        }
+    });
+}
+
+// ------------------- LANGUAGE SWITCHER -------------------
+const langSelect = document.getElementById("langSelect");
 
 function applyLanguage(lang) {
-    const t = translations[lang] || translations.id;
-    document.getElementById('heroBadge').innerHTML = t.heroBadge;
-    document.getElementById('heroTitle1').innerText = t.heroTitle1;
-    document.getElementById('heroTitle2').innerText = t.heroTitle2;
-    document.getElementById('heroSubtitle').innerText = t.heroSubtitle;
-    urlInput.placeholder = t.placeholder;
-    document.getElementById('pasteBtnText').innerText = t.pasteBtn;
-    document.getElementById('btnSubmitText').innerText = t.btnSubmit;
-    document.getElementById('loadingText').innerText = t.loadingText;
-    document.getElementById('mediaFoundLabel').innerHTML = t.mediaFound;
-    document.getElementById('qualityLabel').innerHTML = t.qualityLabel;
-    document.getElementById('downloadBtnText').innerText = t.downloadBtn;
-    document.getElementById('backBtnText').innerText = t.backBtn;
-    document.getElementById('progressStatus').innerText = t.progressStatus;
-    if (cancelBtn) cancelBtn.querySelector('span').innerText = t.cancelBtn;
-}
+    currentLang = lang;
+    localStorage.setItem("app_lang", lang);
+    if (langSelect) langSelect.value = lang;
 
-// ==========================================
-// 4. HANDLERS: PASTE & FORM SUBMIT
-// ==========================================
-pasteBtn.addEventListener('click', async () => {
-    try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-            urlInput.value = text;
+    const t = translations[lang];
+
+    const heroBadge = document.getElementById("heroBadge");
+    const heroTitle1 = document.getElementById("heroTitle1");
+    const heroTitle2 = document.getElementById("heroTitle2");
+    const heroSubtitle = document.getElementById("heroSubtitle");
+    const pasteBtnText = document.getElementById("pasteBtnText");
+    const btnSubmitText = document.getElementById("btnSubmitText");
+    const loadingText = document.getElementById("loadingText");
+    const mediaFoundLabel = document.getElementById("mediaFoundLabel");
+    const qualityLabel = document.getElementById("qualityLabel");
+    const backBtnText = document.getElementById("backBtnText");
+    const toastTitle = document.getElementById("toastTitle");
+
+    if (heroBadge) heroBadge.innerText = t.heroBadge;
+    if (heroTitle1) heroTitle1.innerText = t.heroTitle1;
+    if (heroTitle2) heroTitle2.innerText = t.heroTitle2;
+    if (heroSubtitle) heroSubtitle.innerText = t.heroSubtitle;
+    if (urlInput) urlInput.placeholder = t.inputPlaceholder;
+    if (pasteBtnText) pasteBtnText.innerText = t.pasteBtn;
+    if (btnSubmitText) btnSubmitText.innerText = t.processBtn;
+    if (loadingText) loadingText.innerText = t.loadingText;
+    if (mediaFoundLabel) mediaFoundLabel.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${t.mediaFound}`;
+    if (qualityLabel) qualityLabel.innerHTML = `<i class="fa-solid fa-sliders text-purple-500"></i> ${t.qualityLabel}`;
+    if (backBtnText) backBtnText.innerText = t.backBtn;
+    if (toastTitle) toastTitle.innerText = t.toastTitle;
+
+    // Refresh dynamic labels if result is active
+    if (resultCard && !resultCard.classList.contains("hidden")) {
+        const downloadBtnText = document.getElementById("downloadBtnText");
+        if (downloadBtnText) {
+            if (currentMediaType === "video") {
+                downloadBtnText.innerText = t.downloadVideo;
+            } else {
+                downloadBtnText.innerText = `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
+            }
         }
-    } catch (err) {
-        showToast("Error", "Gagal mengakses clipboard device.");
-    }
-});
-
-downloadForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const url = urlInput.value.trim();
-    if (!url) return;
-
-    // UI Loading
-    loadingState.classList.remove('hidden');
-    btnSubmit.disabled = true;
-    btnSubmit.classList.add('opacity-50');
-
-    try {
-        // SIMULASI API FETCH (Ganti URL ini dengan Endpoint API Backend kamu)
-        // Contoh: const res = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
-        
-        // Simulasi delay response 1.5 detik
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Data tiruan media (Mock Data)
-        const mockData = {
-            title: "Risa - Trending Video TikTok Clean Version HD",
-            source: "TikTok",
-            author: "@risaalah_",
-            duration: "0:14",
-            originalRes: "1080p HD",
-            previewUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
-            downloadOptions: [
-                { label: "1080p HD (No Watermark)", url: "https://dummyjson.com/carts" },
-                { label: "720p (HD Standard)", url: "https://dummyjson.com/carts" },
-                { label: "MP3 Audio Only", url: "https://dummyjson.com/carts" }
-            ]
-        };
-
-        renderResultCard(mockData);
-
-    } catch (err) {
-        showToast(translations[currentLang].toastErrorTitle, "Gagal memproses media. Pastikan tautan valid.");
-    } finally {
-        loadingState.classList.add('hidden');
-        btnSubmit.disabled = false;
-        btnSubmit.classList.remove('opacity-50');
-    }
-});
-
-// ==========================================
-// 5. RENDER RESULT & PREVIEW
-// ==========================================
-function renderResultCard(data) {
-    // Hide input form state, Show Result Card
-    inputCard.classList.add('hidden');
-    resultCard.classList.remove('hidden');
-
-    mediaTitle.innerText = data.title;
-    mediaSourceTag.innerText = data.source;
-
-    // Render Preview
-    previewContainer.innerHTML = `
-        <img src="${data.previewUrl}" class="w-full h-56 object-cover rounded-xl" alt="Preview">
-        <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/40">
-                <i class="fa-solid fa-play text-lg ml-0.5"></i>
-            </div>
-        </div>
-    `;
-
-    // Render Meta Info Badges
-    mediaMetaInfo.innerHTML = `
-        <div class="bg-slate-100 dark:bg-slate-900/80 p-2 rounded-xl text-center border border-slate-200 dark:border-slate-800">
-            <p class="text-[10px] text-slate-400">Username</p>
-            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${data.author}</p>
-        </div>
-        <div class="bg-slate-100 dark:bg-slate-900/80 p-2 rounded-xl text-center border border-slate-200 dark:border-slate-800">
-            <p class="text-[10px] text-slate-400">Durasi</p>
-            <p class="text-xs font-bold text-emerald-500">${data.duration}</p>
-        </div>
-        <div class="bg-slate-100 dark:bg-slate-900/80 p-2 rounded-xl text-center border border-slate-200 dark:border-slate-800">
-            <p class="text-[10px] text-slate-400">Resolusi Asli</p>
-            <p class="text-xs font-bold text-indigo-500 dark:text-indigo-400">${data.originalRes}</p>
-        </div>
-    `;
-
-    // Render Options Dropdown Custom UI
-    let optionsHtml = `<select id="qualitySelect" class="w-full bg-slate-100 dark:bg-slate-950/80 text-slate-900 dark:text-white text-xs font-semibold px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">`;
-    data.downloadOptions.forEach((opt, i) => {
-        optionsHtml += `<option value="${opt.url}">${opt.label}</option>`;
-    });
-    optionsHtml += `</select>`;
-    resolutionSelectorContainer.innerHTML = optionsHtml;
-}
-
-// ==========================================
-// 6. DOWNLOAD & BATAL UNDUH LOGIC
-// ==========================================
-downloadBtn.addEventListener('click', () => {
-    const qualitySelect = document.getElementById('qualitySelect');
-    const selectedUrl = qualitySelect ? qualitySelect.value : '';
-
-    if (!selectedUrl) {
-        showToast("Peringatan", "Pilih resolusi terlebih dahulu.");
-        return;
-    }
-
-    startMediaDownload(selectedUrl);
-});
-
-async function startMediaDownload(targetUrl) {
-    // Inisialisasi AbortController Baru
-    downloadAbortController = new AbortController();
-    const signal = downloadAbortController.signal;
-
-    // Reset Progress UI
-    progressBox.classList.remove('hidden');
-    downloadBtn.disabled = true;
-    downloadBtn.classList.add('opacity-50', 'cursor-not-allowed');
-    progressBar.style.width = '0%';
-    progressPercent.textContent = '0%';
-
-    try {
-        const response = await fetch(targetUrl, { signal });
-        
-        if (!response.ok) throw new Error("Gagal mengunduh file.");
-
-        const contentLength = +response.headers.get('Content-Length') || 1000000;
-        const reader = response.body.getReader();
-
-        let receivedLength = 0;
-        let chunks = [];
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            chunks.push(value);
-            receivedLength += value.length;
-
-            const percent = Math.min(Math.round((receivedLength / contentLength) * 100), 100);
-            progressBar.style.width = `${percent}%`;
-            progressPercent.textContent = `${percent}%`;
-        }
-
-        // Buat File Blob & Auto Download saat selesai
-        const blob = new Blob(chunks);
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `KALZGLOBAL_${Date.now()}.mp4`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(downloadUrl);
-
-    } catch (err) {
-        if (err.name === 'AbortError') {
-            const t = translations[currentLang] || translations.id;
-            showToast(t.toastCancelled, t.toastCancelledMsg);
-        } else {
-            showToast("Download Gagal", "Terjadi kesalahan saat memproses file.");
-        }
-    } finally {
-        // Reset UI State
-        progressBox.classList.add('hidden');
-        downloadBtn.disabled = false;
-        downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        downloadAbortController = null;
     }
 }
 
-// Listener Tombol Batal
-if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => {
-        if (downloadAbortController) {
-            downloadAbortController.abort(); // Membatalkan Fetch Request
-        }
+if (langSelect) {
+    langSelect.addEventListener("change", (e) => {
+        applyLanguage(e.target.value);
     });
 }
 
-// Tombol Kembali
-backBtn.addEventListener('click', () => {
-    if (downloadAbortController) {
-        downloadAbortController.abort();
+// ------------------- UTILS & TOAST -------------------
+function showToast(messageKey) {
+    const t = translations[currentLang];
+    clearTimeout(toastTimeout);
+    if (toastMessage) toastMessage.innerText = t[messageKey] || messageKey;
+    
+    if (toast) {
+        toast.classList.remove("-translate-y-20", "opacity-0", "pointer-events-none");
+        toast.classList.add("translate-y-0", "opacity-100");
     }
-    resultCard.classList.add('hidden');
-    inputCard.classList.remove('hidden');
-    urlInput.value = '';
-});
 
-// ==========================================
-// 7. TOAST NOTIFICATION HELPERS
-// ==========================================
-let toastTimeout = null;
-
-function showToast(title, message) {
-    toastTitle.innerText = title;
-    toastMessage.innerText = message;
-
-    toast.classList.remove('pointer-events-none', '-translate-y-20', 'opacity-0');
-    toast.classList.add('translate-y-0', 'opacity-100');
-
-    if (toastTimeout) clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
         hideToast();
     }, 4000);
 }
 
 function hideToast() {
-    toast.classList.remove('translate-y-0', 'opacity-100');
-    toast.classList.add('pointer-events-none', '-translate-y-20', 'opacity-0');
+    if (toast) {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("-translate-y-20", "opacity-0", "pointer-events-none");
+    }
 }
+
+function formatDuration(seconds) {
+    if (!seconds || seconds === 0) return "Photo";
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+// ------------------- SLIDER CAROUSEL -------------------
+window.scrollSlide = function(direction) {
+    const slider = document.getElementById("imageCarousel");
+    if (!slider) return;
+
+    const newIndex = currentSlideIndex + direction;
+    if (newIndex >= 0 && newIndex < slideImages.length) {
+        slider.scrollTo({
+            left: slider.clientWidth * newIndex,
+            behavior: "smooth"
+        });
+    }
+};
+
+function handleCarouselScroll() {
+    const slider = document.getElementById("imageCarousel");
+    if (!slider) return;
+
+    const newIndex = Math.round(slider.scrollLeft / slider.clientWidth);
+    if (newIndex !== currentSlideIndex && newIndex >= 0 && newIndex < slideImages.length) {
+        currentSlideIndex = newIndex;
+        activeDownloadUrl = slideImages[currentSlideIndex];
+
+        const counter = document.getElementById("slideCounter");
+        if (counter) counter.innerText = `${currentSlideIndex + 1} / ${slideImages.length}`;
+
+        const t = translations[currentLang];
+        const downloadBtnText = document.getElementById("downloadBtnText");
+        if (downloadBtnText) downloadBtnText.innerText = `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
+    }
+}
+
+function renderSlideView() {
+    const t = translations[currentLang];
+    currentSlideIndex = 0;
+    activeDownloadUrl = slideImages[0];
+
+    let slidesHtml = slideImages.map((imgUrl, index) => `
+        <div class="w-full flex-shrink-0 snap-center flex items-center justify-center p-2 min-h-[250px] max-h-[380px]">
+            <img src="${imgUrl}" class="max-w-full max-h-[360px] w-auto h-auto object-contain rounded-lg shadow-md" alt="Slide ${index + 1}">
+        </div>
+    `).join('');
+
+    previewContainer.innerHTML = `
+        <div class="relative w-full overflow-hidden group">
+            <div id="imageCarousel" onscroll="handleCarouselScroll()" class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
+                ${slidesHtml}
+            </div>
+
+            ${slideImages.length > 1 ? `
+                <button onclick="scrollSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                
+                <button onclick="scrollSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[11px] font-mono px-3 py-1 rounded-full border border-white/10 backdrop-blur-md z-10 shadow-lg">
+                    <span id="slideCounter">1 / ${slideImages.length}</span>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    const downloadBtnText = document.getElementById("downloadBtnText");
+    if (downloadBtnText) downloadBtnText.innerText = `${t.downloadPhotoSlide} 1`;
+}
+
+// ------------------- EVENT LISTENERS -------------------
+if (pasteBtn) {
+    pasteBtn.addEventListener("click", async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && urlInput) urlInput.value = text;
+        } catch (err) {
+            showToast("clipboardError");
+        }
+    });
+}
+
+if (backBtn) {
+    backBtn.addEventListener("click", () => {
+        if (resultCard) resultCard.classList.add("hidden");
+        if (urlInput) {
+            urlInput.value = "";
+            urlInput.focus();
+        }
+    });
+}
+
+if (form) {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const targetUrl = urlInput ? urlInput.value.trim() : "";
+        if (!targetUrl) return;
+
+        showLoading(true);
+        if (resultCard) resultCard.classList.add("hidden");
+        if (progressBox) progressBox.classList.add("hidden");
+        slideImages = [];
+        currentSlideIndex = 0;
+
+        const t = translations[currentLang];
+
+        try {
+            let downloadUrl = "";
+            let coverImg = "";
+            let titleText = "";
+            let username = "@user";
+            let durationText = "0:00";
+            let originalRes = "1080p";
+
+            // 1. TIKTOK ENGINE
+            if (targetUrl.includes("tiktok.com") || targetUrl.includes("douyin.com")) {
+                if (mediaSourceTag) mediaSourceTag.innerText = "TikTok";
+                const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(targetUrl)}`);
+                const json = await res.json();
+
+                if (json && json.data) {
+                    username = json.data.author?.unique_id ? `@${json.data.author.unique_id}` : "@tiktok";
+                    titleText = json.data.title || "TikTok Content";
+
+                    if (json.data.images && json.data.images.length > 0) {
+                        currentMediaType = "image";
+                        slideImages = json.data.images;
+                        downloadUrl = slideImages[0];
+                        durationText = `${slideImages.length} ${t.photoSlideTag}`;
+                        originalRes = "Full HD";
+                    } else {
+                        currentMediaType = "video";
+                        downloadUrl = json.data.play;
+                        coverImg = json.data.cover;
+                        durationText = formatDuration(json.data.duration);
+                        originalRes = (json.data.wm_size || json.data.hd_size) ? "1080x1920" : "1080p HD";
+                    }
+                }
+            } 
+            // 2. OTHER ENGINES
+            else {
+                if (mediaSourceTag) mediaSourceTag.innerText = new URL(targetUrl).hostname.replace('www.', '');
+                const res = await fetch("https://api.cobalt.tools/", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ url: targetUrl, videoQuality: "1080" })
+                });
+                const json = await res.json();
+
+                if (json && (json.url || json.picker)) {
+                    if (json.picker && json.picker.length > 0) {
+                        currentMediaType = "image";
+                        slideImages = json.picker.map(item => item.url);
+                        downloadUrl = slideImages[0];
+                        durationText = `${slideImages.length} Photo`;
+                        originalRes = "Full HD";
+                    } else {
+                        downloadUrl = json.url;
+                        titleText = `Media dari ${mediaSourceTag ? mediaSourceTag.innerText : 'URL'}`;
+                        username = "@creator";
+                        
+                        if (targetUrl.includes("instagram.com/p/") || !downloadUrl.includes(".mp4")) {
+                            currentMediaType = "image";
+                            slideImages = [downloadUrl];
+                            durationText = "Photo";
+                            originalRes = "Full HD";
+                        } else {
+                            currentMediaType = "video";
+                            durationText = "Auto";
+                            originalRes = "1080p HD";
+                        }
+                    }
+                }
+            }
+
+            if (downloadUrl) {
+                activeDownloadUrl = downloadUrl;
+                if (mediaTitle) mediaTitle.innerText = titleText;
+
+                // Badge Metadata Adaptif Tema
+                if (mediaMetaInfo) {
+                    mediaMetaInfo.innerHTML = `
+                        <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400">${t.usernameLabel}</p>
+                            <p class="text-xs font-semibold text-purple-600 dark:text-purple-300 truncate">${username}</p>
+                        </div>
+                        <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400">${currentMediaType === 'image' ? t.typeLabel : t.durationLabel}</p>
+                            <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">${durationText}</p>
+                        </div>
+                        <div class="bg-gray-100/80 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200/80 dark:border-gray-800 text-center transition-colors">
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400">${t.resLabel}</p>
+                            <p class="text-xs font-semibold text-blue-600 dark:text-blue-400">${originalRes}</p>
+                        </div>
+                    `;
+                }
+
+                if (currentMediaType === "video") {
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <video controls src="${downloadUrl}" poster="${coverImg}" class="w-full max-h-[340px] object-contain rounded-lg p-1"></video>
+                        `;
+                    }
+                    
+                    // Select Resolusi Adaptif Tema
+                    if (resolutionSelectorContainer) {
+                        resolutionSelectorContainer.innerHTML = `
+                            <select id="resSelect" class="w-full bg-gray-100/80 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/30 text-gray-900 dark:text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500 transition-colors">
+                                <option value="1080">1080p (Ultra HD)</option>
+                                <option value="720" selected>720p (HD Standard)</option>
+                                <option value="480">480p (SD Low)</option>
+                            </select>
+                        `;
+                    }
+                    const downloadBtnText = document.getElementById("downloadBtnText");
+                    if (downloadBtnText) downloadBtnText.innerText = t.downloadVideo;
+
+                } else {
+                    renderSlideView();
+                    
+                    // Badge Kualitas Gambar Adaptif Tema
+                    if (resolutionSelectorContainer) {
+                        resolutionSelectorContainer.innerHTML = `
+                            <div class="w-full bg-gray-100/80 dark:bg-gray-900 border border-gray-200/80 dark:border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors">
+                                <span><i class="fa-regular fa-image"></i> ${t.photoQuality}</span>
+                                <span class="bg-purple-500/10 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">${t.fullHdOrig}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (downloadBtn) downloadBtn.disabled = false;
+                if (resultCard) resultCard.classList.remove("hidden");
+            } else {
+                showToast("fetchError");
+            }
+
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            showToast("connError");
+        } finally {
+            showLoading(false);
+        }
+    });
+}
+
+// Download Action
+if (downloadBtn) {
+    downloadBtn.addEventListener("click", () => {
+        if (!activeDownloadUrl) return;
+
+        const t = translations[currentLang];
+        downloadBtn.disabled = true;
+        if (progressBox) progressBox.classList.remove("hidden");
+        
+        let currentPercent = 0;
+        if (progressBar) progressBar.style.width = "0%";
+        if (progressPercent) progressPercent.innerText = "0%";
+        if (progressStatus) progressStatus.innerText = t.preparing;
+
+        const progressInterval = setInterval(() => {
+            if (currentPercent < 90) {
+                currentPercent += Math.floor(Math.random() * 5) + 2;
+                if (currentPercent > 90) currentPercent = 90;
+
+                if (progressBar) progressBar.style.width = currentPercent + "%";
+                if (progressPercent) progressPercent.innerText = currentPercent + "%";
+                if (progressStatus) progressStatus.innerText = `${t.downloading} (${currentPercent}%)...`;
+                downloadBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> ${t.downloading}... ${currentPercent}%`;
+            }
+        }, 180);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", activeDownloadUrl, true);
+        xhr.responseType = "blob";
+
+        xhr.onload = () => {
+            clearInterval(progressInterval);
+
+            if (xhr.status === 200) {
+                if (progressBar) progressBar.style.width = "100%";
+                if (progressPercent) progressPercent.innerText = "100%";
+                if (progressStatus) progressStatus.innerText = t.finished;
+
+                const blob = xhr.response;
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = blobUrl;
+                
+                const ext = currentMediaType === "video" ? "mp4" : "jpg";
+                const fileSuffix = currentMediaType === "image" && slideImages.length > 0 ? `_slide_${currentSlideIndex + 1}` : '';
+                // NAMA FILE: MediaKalz_
+                a.download = `MediaKalz_${Date.now()}${fileSuffix}.${ext}`;
+                
+                document.body.appendChild(a);
+                a.click();
+                
+                window.URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(a);
+
+                const labelText = currentMediaType === "video" ? t.downloadVideo : `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
+                downloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${t.downloadComplete}`;
+                
+                setTimeout(() => {
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> <span id="downloadBtnText">${labelText}</span>`;
+                }, 2500);
+
+            } else {
+                showToast("fetchError");
+                downloadBtn.disabled = false;
+            }
+        };
+
+        xhr.onerror = () => {
+            clearInterval(progressInterval);
+            showToast("connError");
+            downloadBtn.disabled = false;
+        };
+
+        xhr.send();
+    });
+}
+
+function showLoading(isLoading) {
+    if (loadingState) {
+        if (isLoading) {
+            loadingState.classList.remove("hidden");
+        } else {
+            loadingState.classList.add("hidden");
+        }
+    }
+    if (btnSubmit) btnSubmit.disabled = isLoading;
+}
+
+// Initialize Theme & Language on Load
+initTheme();
+applyLanguage(currentLang);
