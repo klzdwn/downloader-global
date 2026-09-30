@@ -25,6 +25,15 @@
         .glow-btn:hover {
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
         }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
@@ -104,7 +113,7 @@
             </div>
         </div>
 
-        <!-- Result Card (Preview, Meta Info, Resolution & Direct Download) -->
+        <!-- Result Card -->
         <div id="resultCard" class="hidden glass-card p-4 sm:p-5 rounded-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-gray-800">
                 <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
@@ -113,12 +122,12 @@
                 <span class="text-[10px] bg-gray-800 text-gray-300 px-2.5 py-0.5 rounded-md font-mono" id="mediaSourceTag">Public</span>
             </div>
 
-            <!-- Media Preview Container -->
-            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-black/60 max-h-[320px] flex items-center justify-center border border-gray-800">
+            <!-- Media Preview Container (Responsive & Smooth Carousel) -->
+            <div id="previewContainer" class="relative rounded-xl overflow-hidden bg-black/60 border border-gray-800 min-h-[220px] flex items-center justify-center">
                 <!-- Diisi via JS -->
             </div>
 
-            <!-- Meta Info Badges (Username, Durasi, Resolusi Asli) -->
+            <!-- Meta Info Badges -->
             <div id="mediaMetaInfo" class="grid grid-cols-3 gap-2 py-1">
                 <!-- Diisi via JS -->
             </div>
@@ -133,7 +142,6 @@
                 <label class="text-[11px] font-medium text-gray-400 flex items-center gap-1">
                     <i class="fa-solid fa-sliders text-purple-400"></i> Pilih Kualitas / Resolusi:
                 </label>
-                <!-- Container Pilihan Resolusi (Diisi JS) -->
                 <div id="resolutionSelectorContainer"></div>
             </div>
 
@@ -150,7 +158,7 @@
                     </div>
                 </div>
 
-                <!-- Tombol Unduh Media -->
+                <!-- Tombol Unduh Utama -->
                 <button 
                     id="downloadBtn" 
                     class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-900/30"
@@ -158,7 +166,7 @@
                     <i class="fa-solid fa-download"></i> Unduh Video
                 </button>
 
-                <!-- Tombol Kembali / Reset -->
+                <!-- Tombol Kembali -->
                 <button 
                     id="backBtn" 
                     type="button"
