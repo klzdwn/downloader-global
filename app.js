@@ -1,3 +1,108 @@
+// Dictionary Bahasa (ID, EN, MS)
+const translations = {
+    id: {
+        heroBadge: "Multi-Platform Global Downloader",
+        heroTitle1: "Download Video & Foto",
+        heroTitle2: "Tanpa Watermark HD",
+        heroSubtitle: "Unduh konten dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform global lainnya secara instan.",
+        inputPlaceholder: "Tempel tautan video/foto di sini...",
+        pasteBtn: "Paste",
+        processBtn: "Process Media",
+        loadingText: "Sedang mengekstrak media dari server...",
+        mediaFound: "Media Ditemukan",
+        qualityLabel: "Pilih Kualitas / Resolusi:",
+        downloadVideo: "Unduh Video",
+        downloadPhoto: "Unduh Foto",
+        downloadPhotoSlide: "Unduh Foto",
+        backBtn: "Kembali & Tempel Link Lain",
+        clipboardError: "Izinkan akses clipboard di browser HP kamu.",
+        fetchError: "Gagal mengambil media. Pastikan tautan publik dan valid.",
+        connError: "Terjadi kesalahan koneksi saat mengekstrak media.",
+        downloading: "Mengunduh",
+        preparing: "Menyiapkan file...",
+        finished: "Selesai!",
+        downloadComplete: "Unduhan Selesai",
+        toastTitle: "Terjadi Kesalahan",
+        photoQuality: "Kualitas Gambar",
+        fullHdOrig: "Full HD Original",
+        usernameLabel: "Username",
+        typeLabel: "Tipe",
+        durationLabel: "Durasi",
+        resLabel: "Resolusi Asli",
+        photoSlideTag: "Foto Slide"
+    },
+    en: {
+        heroBadge: "Multi-Platform Global Downloader",
+        heroTitle1: "Download Video & Photos",
+        heroTitle2: "Without Watermark HD",
+        heroSubtitle: "Download content instantly from TikTok, Instagram, YouTube, Twitter/X, Pinterest & other global platforms.",
+        inputPlaceholder: "Paste video/photo link here...",
+        pasteBtn: "Paste",
+        processBtn: "Process Media",
+        loadingText: "Extracting media from server...",
+        mediaFound: "Media Found",
+        qualityLabel: "Select Quality / Resolution:",
+        downloadVideo: "Download Video",
+        downloadPhoto: "Download Photo",
+        downloadPhotoSlide: "Download Photo",
+        backBtn: "Back & Paste Another Link",
+        clipboardError: "Allow clipboard access in your browser.",
+        fetchError: "Failed to fetch media. Make sure link is public and valid.",
+        connError: "Connection error while extracting media.",
+        downloading: "Downloading",
+        preparing: "Preparing file...",
+        finished: "Finished!",
+        downloadComplete: "Download Complete",
+        toastTitle: "An Error Occurred",
+        photoQuality: "Image Quality",
+        fullHdOrig: "Full HD Original",
+        usernameLabel: "Username",
+        typeLabel: "Type",
+        durationLabel: "Duration",
+        resLabel: "Original Res",
+        photoSlideTag: "Photo Slide"
+    },
+    ms: {
+        heroBadge: "Pemuat Turun Global Pelbagai Platform",
+        heroTitle1: "Muat Turun Video & Foto",
+        heroTitle2: "Tanpa Watermark HD",
+        heroSubtitle: "Muat turun kandungan dari TikTok, Instagram, YouTube, Twitter/X, Pinterest & platform lain secara segera.",
+        inputPlaceholder: "Tampal pautan video/foto di sini...",
+        pasteBtn: "Tampal",
+        processBtn: "Proses Media",
+        loadingText: "Mengekstrak media daripada pelayan...",
+        mediaFound: "Media Ditemui",
+        qualityLabel: "Pilih Kualiti / Resolusi:",
+        downloadVideo: "Muat Turun Video",
+        downloadPhoto: "Muat Turun Foto",
+        downloadPhotoSlide: "Muat Turun Foto",
+        backBtn: "Kembali & Tampal Pautan Lain",
+        clipboardError: "Benarkan akses papapan keratan pada penyemak imbas anda.",
+        fetchError: "Gagal mengambil media. Pastikan pautan adalah awam dan sah.",
+        connError: "Ralat sambungan semasa mengekstrak media.",
+        downloading: "Memuat turun",
+        preparing: "Menyediakan fail...",
+        finished: "Selesai!",
+        downloadComplete: "Muat Turun Selesai",
+        toastTitle: "Ralat Berlaku",
+        photoQuality: "Kualiti Gambar",
+        fullHdOrig: "Full HD Asal",
+        usernameLabel: "Nama Pengguna",
+        typeLabel: "Jenis",
+        durationLabel: "Masa",
+        resLabel: "Resolusi Asal",
+        photoSlideTag: "Slaid Foto"
+    }
+};
+
+// State Variables
+let currentLang = localStorage.getItem("app_lang") || "id";
+let activeDownloadUrl = "";
+let currentMediaType = "video";
+let slideImages = [];
+let currentSlideIndex = 0;
+
+// DOM Elements
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
 const pasteBtn = document.getElementById("pasteBtn");
@@ -18,21 +123,73 @@ const progressBar = document.getElementById("progressBar");
 const progressPercent = document.getElementById("progressPercent");
 const progressStatus = document.getElementById("progressStatus");
 
-// Toast Elements
 const toast = document.getElementById("toast");
 const toastMessage = document.getElementById("toastMessage");
 let toastTimeout;
 
-// State Management
-let activeDownloadUrl = "";
-let currentMediaType = "video"; // 'video' atau 'image'
-let slideImages = [];
-let currentSlideIndex = 0;
+// ------------------- DARK / LIGHT MODE -------------------
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeIcon = document.getElementById("themeIcon");
 
-// Fungsi Toast
-function showToast(message) {
+function initTheme() {
+    const savedTheme = localStorage.getItem("app_theme") || "dark";
+    if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+        themeIcon.className = "fa-solid fa-sun text-amber-400 text-xs";
+    } else {
+        document.documentElement.classList.remove("dark");
+        themeIcon.className = "fa-solid fa-moon text-gray-700 text-xs";
+    }
+}
+
+themeToggleBtn.addEventListener("click", () => {
+    const isDark = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("app_theme", isDark ? "dark" : "light");
+    themeIcon.className = isDark ? "fa-solid fa-sun text-amber-400 text-xs" : "fa-solid fa-moon text-gray-700 text-xs";
+});
+
+// ------------------- LANGUAGE SWITCHER -------------------
+const langSelect = document.getElementById("langSelect");
+
+function applyLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("app_lang", lang);
+    langSelect.value = lang;
+
+    const t = translations[lang];
+
+    document.getElementById("heroBadge").innerText = t.heroBadge;
+    document.getElementById("heroTitle1").innerText = t.heroTitle1;
+    document.getElementById("heroTitle2").innerText = t.heroTitle2;
+    document.getElementById("heroSubtitle").innerText = t.heroSubtitle;
+    document.getElementById("urlInput").placeholder = t.inputPlaceholder;
+    document.getElementById("pasteBtnText").innerText = t.pasteBtn;
+    document.getElementById("btnSubmitText").innerText = t.processBtn;
+    document.getElementById("loadingText").innerText = t.loadingText;
+    document.getElementById("mediaFoundLabel").innerHTML = `<i class="fa-solid fa-circle-check"></i> ${t.mediaFound}`;
+    document.getElementById("qualityLabel").innerHTML = `<i class="fa-solid fa-sliders text-purple-500"></i> ${t.qualityLabel}`;
+    document.getElementById("backBtnText").innerText = t.backBtn;
+    document.getElementById("toastTitle").innerText = t.toastTitle;
+
+    // Refresh dynamic labels if result is active
+    if (!resultCard.classList.contains("hidden")) {
+        if (currentMediaType === "video") {
+            document.getElementById("downloadBtnText").innerText = t.downloadVideo;
+        } else {
+            document.getElementById("downloadBtnText").innerText = `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
+        }
+    }
+}
+
+langSelect.addEventListener("change", (e) => {
+    applyLanguage(e.target.value);
+});
+
+// ------------------- UTILS & TOAST -------------------
+function showToast(messageKey) {
+    const t = translations[currentLang];
     clearTimeout(toastTimeout);
-    toastMessage.innerText = message;
+    toastMessage.innerText = t[messageKey] || messageKey;
     
     toast.classList.remove("-translate-y-20", "opacity-0", "pointer-events-none");
     toast.classList.add("translate-y-0", "opacity-100");
@@ -54,7 +211,7 @@ function formatDuration(seconds) {
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
-// Navigasi Smooth Scroll Slide
+// ------------------- SLIDER CAROUSEL -------------------
 window.scrollSlide = function(direction) {
     const slider = document.getElementById("imageCarousel");
     if (!slider) return;
@@ -68,7 +225,6 @@ window.scrollSlide = function(direction) {
     }
 };
 
-// Update Indikator & Tombol Unduh saat Scroll Berubah
 function handleCarouselScroll() {
     const slider = document.getElementById("imageCarousel");
     if (!slider) return;
@@ -78,17 +234,16 @@ function handleCarouselScroll() {
         currentSlideIndex = newIndex;
         activeDownloadUrl = slideImages[currentSlideIndex];
 
-        // Update indikator teks
         const counter = document.getElementById("slideCounter");
         if (counter) counter.innerText = `${currentSlideIndex + 1} / ${slideImages.length}`;
 
-        // Update Label Tombol Download
-        downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto ${currentSlideIndex + 1}`;
+        const t = translations[currentLang];
+        document.getElementById("downloadBtnText").innerText = `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
     }
 }
 
-// Render Carousel Slide Foto Smooth
 function renderSlideView() {
+    const t = translations[currentLang];
     currentSlideIndex = 0;
     activeDownloadUrl = slideImages[0];
 
@@ -100,23 +255,19 @@ function renderSlideView() {
 
     previewContainer.innerHTML = `
         <div class="relative w-full overflow-hidden group">
-            <!-- Scroll Container -->
             <div id="imageCarousel" onscroll="handleCarouselScroll()" class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
                 ${slidesHtml}
             </div>
 
             ${slideImages.length > 1 ? `
-                <!-- Tombol Prev -->
                 <button onclick="scrollSlide(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
                     <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
                 
-                <!-- Tombol Next -->
                 <button onclick="scrollSlide(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 transition-all active:scale-90 shadow-xl z-10">
                     <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
 
-                <!-- Indicator Slide Counter -->
                 <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[11px] font-mono px-3 py-1 rounded-full border border-white/10 backdrop-blur-md z-10 shadow-lg">
                     <span id="slideCounter">1 / ${slideImages.length}</span>
                 </div>
@@ -124,27 +275,25 @@ function renderSlideView() {
         </div>
     `;
 
-    downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Foto 1`;
+    document.getElementById("downloadBtnText").innerText = `${t.downloadPhotoSlide} 1`;
 }
 
-// Paste Button
+// ------------------- EVENT LISTENERS -------------------
 pasteBtn.addEventListener("click", async () => {
     try {
         const text = await navigator.clipboard.readText();
         if (text) urlInput.value = text;
     } catch (err) {
-        showToast("Izinkan akses clipboard di browser HP kamu.");
+        showToast("clipboardError");
     }
 });
 
-// Tombol Kembali
 backBtn.addEventListener("click", () => {
     resultCard.classList.add("hidden");
     urlInput.value = "";
     urlInput.focus();
 });
 
-// Form Submit
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const targetUrl = urlInput.value.trim();
@@ -155,6 +304,8 @@ form.addEventListener("submit", async (e) => {
     progressBox.classList.add("hidden");
     slideImages = [];
     currentSlideIndex = 0;
+
+    const t = translations[currentLang];
 
     try {
         let downloadUrl = "";
@@ -178,7 +329,7 @@ form.addEventListener("submit", async (e) => {
                     currentMediaType = "image";
                     slideImages = json.data.images;
                     downloadUrl = slideImages[0];
-                    durationText = `${slideImages.length} Foto Slide`;
+                    durationText = `${slideImages.length} ${t.photoSlideTag}`;
                     originalRes = "Full HD";
                 } else {
                     currentMediaType = "video";
@@ -189,7 +340,7 @@ form.addEventListener("submit", async (e) => {
                 }
             }
         } 
-        // 2. OTHER ENGINES (Instagram, etc)
+        // 2. OTHER ENGINES
         else {
             mediaSourceTag.innerText = new URL(targetUrl).hostname.replace('www.', '');
             const res = await fetch("https://api.cobalt.tools/", {
@@ -233,17 +384,17 @@ form.addEventListener("submit", async (e) => {
             mediaTitle.innerText = titleText;
 
             mediaMetaInfo.innerHTML = `
-                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">Username</p>
-                    <p class="text-xs font-semibold text-purple-300 truncate">${username}</p>
+                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">${t.usernameLabel}</p>
+                    <p class="text-xs font-semibold text-purple-600 dark:text-purple-300 truncate">${username}</p>
                 </div>
-                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">${currentMediaType === 'image' ? 'Tipe' : 'Durasi'}</p>
-                    <p class="text-xs font-semibold text-emerald-400">${durationText}</p>
+                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">${currentMediaType === 'image' ? t.typeLabel : t.durationLabel}</p>
+                    <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">${durationText}</p>
                 </div>
-                <div class="bg-gray-900/80 p-2 rounded-xl border border-gray-800 text-center">
-                    <p class="text-[10px] text-gray-400">Resolusi Asli</p>
-                    <p class="text-xs font-semibold text-blue-400">${originalRes}</p>
+                <div class="bg-gray-100 dark:bg-gray-900/80 p-2 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <p class="text-[10px] text-gray-400">${t.resLabel}</p>
+                    <p class="text-xs font-semibold text-blue-600 dark:text-blue-400">${originalRes}</p>
                 </div>
             `;
 
@@ -253,22 +404,21 @@ form.addEventListener("submit", async (e) => {
                 `;
                 
                 resolutionSelectorContainer.innerHTML = `
-                    <select id="resSelect" class="w-full bg-gray-900 border border-purple-500/30 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500">
+                    <select id="resSelect" class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/30 text-gray-900 dark:text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500">
                         <option value="1080">1080p (Ultra HD)</option>
                         <option value="720" selected>720p (HD Standard)</option>
                         <option value="480">480p (SD Low)</option>
                     </select>
                 `;
-                downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> Unduh Video`;
+                document.getElementById("downloadBtnText").innerText = t.downloadVideo;
 
             } else {
-                // RENDER CAROUSEL SLIDE SMOOTH
                 renderSlideView();
                 
                 resolutionSelectorContainer.innerHTML = `
-                    <div class="w-full bg-gray-900 border border-purple-500/20 text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
-                        <span><i class="fa-regular fa-image"></i> Kualitas Gambar</span>
-                        <span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">Full HD Original</span>
+                    <div class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center justify-between">
+                        <span><i class="fa-regular fa-image"></i> ${t.photoQuality}</span>
+                        <span class="bg-purple-500/10 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded text-[10px] border border-purple-500/30">${t.fullHdOrig}</span>
                     </div>
                 `;
             }
@@ -276,28 +426,29 @@ form.addEventListener("submit", async (e) => {
             downloadBtn.disabled = false;
             resultCard.classList.remove("hidden");
         } else {
-            showToast("Gagal mengambil media. Pastikan tautan publik dan valid.");
+            showToast("fetchError");
         }
 
     } catch (err) {
         console.error("Fetch Error:", err);
-        showToast("Terjadi kesalahan koneksi saat mengekstrak media.");
+        showToast("connError");
     } finally {
         showLoading(false);
     }
 });
 
-// Download Process Single File
+// Download Action
 downloadBtn.addEventListener("click", () => {
     if (!activeDownloadUrl) return;
 
+    const t = translations[currentLang];
     downloadBtn.disabled = true;
     progressBox.classList.remove("hidden");
     
     let currentPercent = 0;
     progressBar.style.width = "0%";
     progressPercent.innerText = "0%";
-    progressStatus.innerText = "Menyiapkan file...";
+    progressStatus.innerText = t.preparing;
 
     const progressInterval = setInterval(() => {
         if (currentPercent < 90) {
@@ -306,8 +457,8 @@ downloadBtn.addEventListener("click", () => {
 
             progressBar.style.width = currentPercent + "%";
             progressPercent.innerText = currentPercent + "%";
-            progressStatus.innerText = `Mengunduh (${currentPercent}%)...`;
-            downloadBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Mengunduh... ${currentPercent}%`;
+            progressStatus.innerText = `${t.downloading} (${currentPercent}%)...`;
+            downloadBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> ${t.downloading}... ${currentPercent}%`;
         }
     }, 180);
 
@@ -321,7 +472,7 @@ downloadBtn.addEventListener("click", () => {
         if (xhr.status === 200) {
             progressBar.style.width = "100%";
             progressPercent.innerText = "100%";
-            progressStatus.innerText = "Selesai!";
+            progressStatus.innerText = t.finished;
 
             const blob = xhr.response;
             const blobUrl = window.URL.createObjectURL(blob);
@@ -340,23 +491,23 @@ downloadBtn.addEventListener("click", () => {
             window.URL.revokeObjectURL(blobUrl);
             document.body.removeChild(a);
 
-            const labelText = currentMediaType === "video" ? "Unduh Video" : `Unduh Foto ${currentSlideIndex + 1}`;
-            downloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> Unduhan Selesai`;
+            const labelText = currentMediaType === "video" ? t.downloadVideo : `${t.downloadPhotoSlide} ${currentSlideIndex + 1}`;
+            downloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${t.downloadComplete}`;
             
             setTimeout(() => {
                 downloadBtn.disabled = false;
-                downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> ${labelText}`;
+                downloadBtn.innerHTML = `<i class="fa-solid fa-download"></i> <span id="downloadBtnText">${labelText}</span>`;
             }, 2500);
 
         } else {
-            showToast("Gagal mengunduh file media dari server.");
+            showToast("fetchError");
             downloadBtn.disabled = false;
         }
     };
 
     xhr.onerror = () => {
         clearInterval(progressInterval);
-        showToast("Terjadi masalah jaringan saat mengunduh.");
+        showToast("connError");
         downloadBtn.disabled = false;
     };
 
@@ -372,3 +523,7 @@ function showLoading(isLoading) {
         btnSubmit.disabled = false;
     }
 }
+
+// Initialize Theme & Language on Load
+initTheme();
+applyLanguage(currentLang);
