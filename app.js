@@ -1,5 +1,4 @@
-// Ganti dengan URL Cloudflare Worker milikmu
-const WORKER_URL = "https://dwnder-kalz.alfandiibnunugroho7.workers.dev"; // <-- PASTE LINK WORKER DI SINI
+const WORKER_URL = "https://dwnder-kalz.alfandiibnunugroho7.workers.dev/";
 
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
@@ -38,7 +37,7 @@ form.addEventListener("submit", async (e) => {
                 mediaTitle.innerText = data.title || `Media dari (${new URL(targetUrl).hostname})`;
                 resultCard.classList.remove("hidden");
             } else {
-                alert("Gagal mengekstrak media dari tautan tersebut.");
+                alert("Gagal mengekstrak media dari link tersebut.");
             }
         } else {
             alert("Gagal memproses tautan. Pastikan akun tidak diprivat/tautan valid.");
